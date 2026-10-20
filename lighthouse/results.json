@@ -1,0 +1,270 @@
+[
+  {
+    "profile": "mobile",
+    "page": "/",
+    "runs": [
+      {
+        "categories": {
+          "performance": 69,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 5523.5985,
+          "cumulative-layout-shift": 0.01546222996910323,
+          "total-blocking-time": 163,
+          "first-contentful-paint": 3616.7660000000005,
+          "speed-index": 4021.3681468196637
+        }
+      },
+      {
+        "categories": {
+          "performance": 68,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 5596.46875,
+          "cumulative-layout-shift": 0.01546222996910323,
+          "total-blocking-time": 150.50000000000023,
+          "first-contentful-paint": 3699.8499999999995,
+          "speed-index": 3958.9854549901365
+        }
+      },
+      {
+        "categories": {
+          "performance": 70,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 5575.4839999999995,
+          "cumulative-layout-shift": 0.01546222996910323,
+          "total-blocking-time": 121.99999999999977,
+          "first-contentful-paint": 3605.3479999999995,
+          "speed-index": 3939.1218153934215
+        }
+      }
+    ],
+    "lighthouseVersion": "12.6.1",
+    "median": {
+      "categories": {
+        "performance": 69,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 5575.4839999999995,
+        "cumulative-layout-shift": 0.01546222996910323,
+        "total-blocking-time": 150.50000000000023,
+        "first-contentful-paint": 3616.7660000000005,
+        "speed-index": 3958.9854549901365
+      }
+    }
+  },
+  {
+    "profile": "mobile",
+    "page": "/nft/emerald-ape-042",
+    "runs": [
+      {
+        "categories": {
+          "performance": 64,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 5148.431,
+          "cumulative-layout-shift": 0.07776427703523695,
+          "total-blocking-time": 337,
+          "first-contentful-paint": 3658.795,
+          "speed-index": 3658.795
+        }
+      },
+      {
+        "categories": {
+          "performance": 69,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 5039.069,
+          "cumulative-layout-shift": 0.07776427703523695,
+          "total-blocking-time": 190.32949999999983,
+          "first-contentful-paint": 3614.205,
+          "speed-index": 3614.205
+        }
+      },
+      {
+        "categories": {
+          "performance": 63,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 5135.274000000001,
+          "cumulative-layout-shift": 0.07776427703523695,
+          "total-blocking-time": 350.7929999999999,
+          "first-contentful-paint": 3629.4300000000003,
+          "speed-index": 3629.4300000000003
+        }
+      }
+    ],
+    "lighthouseVersion": "12.6.1",
+    "median": {
+      "categories": {
+        "performance": 64,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 5135.274000000001,
+        "cumulative-layout-shift": 0.07776427703523695,
+        "total-blocking-time": 337,
+        "first-contentful-paint": 3629.4300000000003,
+        "speed-index": 3629.4300000000003
+      }
+    }
+  },
+  {
+    "profile": "desktop",
+    "page": "/",
+    "runs": [
+      {
+        "categories": {
+          "performance": 97,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 1180.4375,
+          "cumulative-layout-shift": 0.001586824395560414,
+          "total-blocking-time": 22,
+          "first-contentful-paint": 827.2625,
+          "speed-index": 1031.983333463301
+        }
+      },
+      {
+        "categories": {
+          "performance": 97,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 1165.8649999999996,
+          "cumulative-layout-shift": 0.001586824395560414,
+          "total-blocking-time": 17.5,
+          "first-contentful-paint": 829.6274999999998,
+          "speed-index": 943.9157225000409
+        }
+      },
+      {
+        "categories": {
+          "performance": 97,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 1174.2799999999997,
+          "cumulative-layout-shift": 0.001586824395560414,
+          "total-blocking-time": 17.5,
+          "first-contentful-paint": 846.1799999999996,
+          "speed-index": 981.2440808337341
+        }
+      }
+    ],
+    "lighthouseVersion": "12.6.1",
+    "median": {
+      "categories": {
+        "performance": 97,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 1174.2799999999997,
+        "cumulative-layout-shift": 0.001586824395560414,
+        "total-blocking-time": 17.5,
+        "first-contentful-paint": 829.6274999999998,
+        "speed-index": 981.2440808337341
+      }
+    }
+  },
+  {
+    "profile": "desktop",
+    "page": "/nft/emerald-ape-042",
+    "runs": [
+      {
+        "categories": {
+          "performance": 96,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 1229.1864999999998,
+          "cumulative-layout-shift": 0.0001340863664621948,
+          "total-blocking-time": 0,
+          "first-contentful-paint": 825.1779999999999,
+          "speed-index": 1008.0703762992871
+        }
+      },
+      {
+        "categories": {
+          "performance": 96,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 1230.2065000000002,
+          "cumulative-layout-shift": 0.0001340863664621948,
+          "total-blocking-time": 0,
+          "first-contentful-paint": 854.1179999999999,
+          "speed-index": 989.6581617074921
+        }
+      },
+      {
+        "categories": {
+          "performance": 96,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 1231.6270000000004,
+          "cumulative-layout-shift": 0.0001340863664621948,
+          "total-blocking-time": 0,
+          "first-contentful-paint": 872.1440000000002,
+          "speed-index": 1021.5297406297389
+        }
+      }
+    ],
+    "lighthouseVersion": "12.6.1",
+    "median": {
+      "categories": {
+        "performance": 96,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 1230.2065000000002,
+        "cumulative-layout-shift": 0.0001340863664621948,
+        "total-blocking-time": 0,
+        "first-contentful-paint": 854.1179999999999,
+        "speed-index": 1008.0703762992871
+      }
+    }
+  }
+]

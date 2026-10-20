@@ -9,6 +9,9 @@ const BASE_URL = `http://localhost:${PORT}`
  */
 export default defineConfig({
   testDir: "./e2e",
+  // Baselines de regressão visual versionadas no repositório (sem sufixo de plataforma).
+  snapshotPathTemplate: "{testDir}/__screenshots__/{testFilePath}/{projectName}/{arg}{ext}",
+  expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.01 } },
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,

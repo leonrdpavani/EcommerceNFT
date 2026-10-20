@@ -33,6 +33,8 @@ async function expectNoViolations(page: Page, context: string) {
 
 test.describe("Acessibilidade (axe, WCAG 2.2 AA)", () => {
   test("páginas públicas", async ({ page }) => {
+    // Cinco páginas auditadas em sequência; costuma ser o primeiro teste, com o dev server ainda frio.
+    test.setTimeout(60_000)
     await page.goto("/")
     await expect(page.getByRole("region", { name: "Catálogo de NFTs" }).getByRole("article").first()).toBeVisible()
     await expectNoViolations(page, "início")

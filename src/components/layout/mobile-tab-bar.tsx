@@ -4,7 +4,7 @@ import { useState } from "react"
 import { cn } from "cn"
 
 import tabBarShape from "@/assets/decor/tabbar-shape.svg"
-import { SearchDialog } from "@/components/layout/search-dialog"
+import { LazySearchDialog } from "@/components/layout/lazy-search-dialog"
 
 /** Barra de navegação inferior do mobile (Figma: Mobile / Início › Tab Bar). */
 export function MobileTabBar({ cartCount }: { cartCount: number }) {
@@ -47,7 +47,7 @@ export function MobileTabBar({ cartCount }: { cartCount: number }) {
           </TabItem>
         </ul>
       </nav>
-      <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+      <LazySearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
     </>
   )
 }

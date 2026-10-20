@@ -4,7 +4,7 @@ import { useState } from "react"
 import { cn } from "cn"
 
 import { Logo } from "@/components/layout/logo"
-import { SearchDialog } from "@/components/layout/search-dialog"
+import { LazySearchDialog } from "@/components/layout/lazy-search-dialog"
 import { useSession } from "@/features/session/use-session"
 import { notifyUnavailable } from "@/lib/soon"
 
@@ -107,7 +107,7 @@ export function SiteHeader({ cartCount, divider = false }: SiteHeaderProps) {
           )}
         </div>
       </div>
-      <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+      <LazySearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
     </header>
   )
 }

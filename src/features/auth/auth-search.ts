@@ -1,6 +1,6 @@
-import { z } from "zod"
+import * as z from "zod/mini"
 
-/** `redirect` preserva o fluxo anterior para retomar após autenticar. */
+/** `redirect` preserva o fluxo anterior para retomar após autenticar (apenas caminhos internos). */
 export const authSearchSchema = z.object({
-  redirect: z.string().startsWith("/").optional().catch(undefined),
+  redirect: z.catch(z.optional(z.string().check(z.startsWith("/"))), undefined),
 })

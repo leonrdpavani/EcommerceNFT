@@ -4,6 +4,7 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 
 import "./index.css"
+import { setMocksGate } from "./api/mocks-gate"
 import { createQueryClient } from "./api/query-client"
 import { routeTree } from "./routeTree.gen"
 
@@ -31,12 +32,20 @@ async function enableMocks() {
   await startMocking()
 }
 
-void enableMocks().then(() => {
-  createRoot(document.getElementById("root")!).render(
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </StrictMode>
-  )
-})
+// O MSW (~170 KB) inicia depois da primeira pintura, em tempo ocioso: a interface aparece
+// sem esperar por ele; chamadas à API e o Socket.IO aguardam o portão de prontidão.
+setMocksGate(
+  new Promise<void>((resolve, reject) => {
+    const start = () => void enableMocks().then(resolve, reject)
+    if ("requestIdleCallback" in window) window.requestIdleCallback(start, { timeout: 300 })
+    else setTimeout(start, 50)
+  })
+)
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  </StrictMode>
+)

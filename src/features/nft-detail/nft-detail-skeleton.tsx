@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 /** Skeleton do detalhe com as mesmas dimensões do conteúdo (evita deslocamento de layout). */
 export function NftDetailSkeleton() {
   return (
-    <div className="container-page mt-8" role="status" aria-label="Carregando NFT">
+    <div className="container-page mt-8 min-h-dvh" role="status" aria-label="Carregando NFT">
       <Skeleton className="h-4 w-40" />
       <div className="mt-3 flex flex-col gap-8 lg:flex-row">
         <div className="flex gap-7">

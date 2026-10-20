@@ -2,6 +2,7 @@ import axios, { AxiosError } from "axios"
 
 import type { ApiErrorBody, ApiErrorCode } from "@/api/contracts"
 import { clientStorage } from "@/api/client-storage"
+import { whenMocksReady } from "@/api/mocks-gate"
 
 /** Erro normalizado da API — toda falha de transporte vira um ApiError com código estável. */
 export class ApiError extends Error {
@@ -39,7 +40,8 @@ export const http = axios.create({
   headers: { "Content-Type": "application/json" },
 })
 
-http.interceptors.request.use((config) => {
+http.interceptors.request.use(async (config) => {
+  await whenMocksReady()
   const session = clientStorage.getSession()
   if (session) config.headers.set("Authorization", `Bearer ${session.token}`)
   const cartId = clientStorage.getCartId()

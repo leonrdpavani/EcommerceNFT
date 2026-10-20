@@ -1,4 +1,5 @@
-import { z } from "zod"
+// zod/mini: API funcional e tree-shakeable — este schema fica no bundle inicial (search da rota).
+import * as z from "zod/mini"
 
 const categoryIds = [
   "arte-digital",
@@ -14,16 +15,16 @@ const categoryIds = [
 
 const networkIds = ["ethereum", "polygon", "solana"] as const
 
-/** Estado do catálogo na URL: sobrevive a refresh e navegação pelo histórico. */
+/** Estado do catálogo na URL: sobrevive a refresh e navegação pelo histórico. Valores inválidos voltam ao padrão. */
 export const catalogSearchSchema = z.object({
-  q: z.string().trim().max(80).optional().catch(undefined),
-  tab: z.enum(["todos", "novos", "em-alta"]).default("todos").catch("todos"),
-  sort: z.enum(["recentes", "preco-asc", "preco-desc", "nome"]).default("recentes").catch("recentes"),
-  categories: z.array(z.enum(categoryIds)).default([]).catch([]),
-  networks: z.array(z.enum(networkIds)).default([]).catch([]),
-  min: z.number().nonnegative().optional().catch(undefined),
-  max: z.number().nonnegative().optional().catch(undefined),
-  page: z.number().int().positive().default(1).catch(1),
+  q: z.catch(z.optional(z.string().check(z.trim(), z.maxLength(80))), undefined),
+  tab: z.catch(z._default(z.enum(["todos", "novos", "em-alta"]), "todos"), "todos"),
+  sort: z.catch(z._default(z.enum(["recentes", "preco-asc", "preco-desc", "nome"]), "recentes"), "recentes"),
+  categories: z.catch(z._default(z.array(z.enum(categoryIds)), []), []),
+  networks: z.catch(z._default(z.array(z.enum(networkIds)), []), []),
+  min: z.catch(z.optional(z.number().check(z.nonnegative())), undefined),
+  max: z.catch(z.optional(z.number().check(z.nonnegative())), undefined),
+  page: z.catch(z._default(z.int().check(z.positive()), 1), 1),
 })
 
 export type CatalogSearch = z.infer<typeof catalogSearchSchema>
