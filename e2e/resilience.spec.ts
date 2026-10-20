@@ -13,6 +13,15 @@ test.describe("Falhas, carregamento e sessão", () => {
       await expect(page.getByRole("status", { name: "Carregando NFT" })).toBeVisible()
       await expect(page.getByRole("heading", { level: 1, name: "Golden Beat #207" })).toBeVisible({ timeout: 10_000 })
     })
+
+    test("skeleton respeita a preferência por movimento reduzido", async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" })
+      await page.goto("/")
+      const skeleton = page.locator(".animate-shimmer").first()
+      await expect(skeleton).toBeVisible()
+      const duration = await skeleton.evaluate((element) => parseFloat(getComputedStyle(element).animationDuration))
+      expect(duration).toBeLessThan(0.01)
+    })
   })
 
   test("falha do catálogo mostra erro e recupera com nova tentativa", async ({ page }) => {

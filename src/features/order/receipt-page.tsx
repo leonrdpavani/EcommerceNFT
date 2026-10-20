@@ -174,16 +174,22 @@ function ConfirmedReceipt({ order }: { order: Order }) {
           Transação confirmada na {networkLabel(order.network)}. A propriedade foi transferida para sua carteira conectada e registrada na rede.
         </p>
         {order.explorerUrl ? (
-          <a
-            href={order.explorerUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={buttonVariants({ className: "mx-auto mt-5 h-12 rounded-sm px-4 text-base" })}
-          >
-            Ver no Etherscan
-            <ExternalLinkIcon className="size-4" aria-hidden="true" />
-            <span className="sr-only">(link simulado, abre em nova aba)</span>
-          </a>
+          <div className="mt-5 flex flex-col items-center gap-2">
+            <a
+              href={order.explorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-describedby="explorer-note"
+              className={buttonVariants({ className: "h-12 rounded-sm px-4 text-base" })}
+            >
+              Ver no Etherscan
+              <ExternalLinkIcon className="size-4" aria-hidden="true" />
+              <span className="sr-only">(abre em nova aba)</span>
+            </a>
+            <p id="explorer-note" className="max-w-[40ch] text-center text-xs leading-5 text-taupe">
+              Link simulado: a transação é fictícia e não existe na rede real, então o Etherscan mostrará “não encontrada”.
+            </p>
+          </div>
         ) : null}
       </section>
     </Shell>

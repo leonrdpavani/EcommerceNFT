@@ -59,7 +59,7 @@ export function NftCarousel({ title, nfts, className }: NftCarouselProps) {
         ))}
       </ul>
       {pageCount > 1 ? (
-        <div className="flex justify-center gap-2" role="group" aria-label={`Páginas de ${title}`}>
+        <div className="flex justify-center gap-0.5" role="group" aria-label={`Páginas de ${title}`}>
           {Array.from({ length: pageCount }, (_, index) => (
             <button
               key={index}
@@ -67,11 +67,16 @@ export function NftCarousel({ title, nfts, className }: NftCarouselProps) {
               onClick={() => goTo(index)}
               aria-label={`Ir para a página ${index + 1}`}
               aria-current={index === page ? "true" : undefined}
-              className={cn(
-                "size-3 cursor-pointer rounded-full border border-brand transition-colors",
-                index === page ? "bg-brand" : "bg-transparent hover:bg-brand/40"
-              )}
-            />
+              className="group flex size-6 cursor-pointer items-center justify-center rounded-full"
+            >
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "size-3 rounded-full border border-brand transition-colors",
+                  index === page ? "bg-brand" : "bg-transparent group-hover:bg-brand/40"
+                )}
+              />
+            </button>
           ))}
         </div>
       ) : null}

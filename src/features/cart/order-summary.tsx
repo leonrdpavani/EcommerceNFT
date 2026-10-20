@@ -51,14 +51,12 @@ export function SummaryLines({
           )}
         </dd>
       </div>
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-4">
-          <dt>Taxa de rede</dt>
-          <dd className={valueSize}>{formatEth(values.networkFee)}</dd>
-        </div>
-        <p className={cn("text-xs leading-4 text-brand-text", feeNoteAlign === "end" ? "text-right" : "text-center")}>
+      <div className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3">
+        <dt>Taxa de rede</dt>
+        <dd className={valueSize}>{formatEth(values.networkFee)}</dd>
+        <dd className={cn("col-span-2 text-xs leading-4 text-brand-text", feeNoteAlign === "end" ? "text-right" : "text-center")}>
           Taxa estimada
-        </p>
+        </dd>
       </div>
     </dl>
   )

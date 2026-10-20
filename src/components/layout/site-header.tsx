@@ -84,14 +84,16 @@ export function SiteHeader({ cartCount, divider = false }: SiteHeaderProps) {
             <Link
               to="/conta/perfil"
               className="flex h-[35px] max-w-[180px] items-center gap-2 rounded-md border border-brand px-2.5 text-sm font-medium text-brand-text transition-colors hover:bg-brand/10"
-              aria-label={`Minha conta (${user.displayName})`}
             >
               {user.avatarUrl ? (
                 <img src={user.avatarUrl} alt="" className="size-6 rounded-full object-cover" />
               ) : (
                 <UserIcon className="size-5" aria-hidden="true" />
               )}
-              <span className="truncate">{user.displayName}</span>
+              <span className="truncate">
+                <span className="sr-only">Minha conta: </span>
+                {user.displayName}
+              </span>
             </Link>
           ) : (
             <Link

@@ -4,6 +4,7 @@ import { lazy, Suspense } from "react"
 import { cn } from "cn"
 
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar"
+import { RouteFocus } from "@/components/layout/route-focus"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { Toaster } from "@/components/ui/sonner"
@@ -48,6 +49,7 @@ function RootLayout() {
       >
         Pular para o conteúdo
       </a>
+      <RouteFocus />
       <SessionSync />
       <RealtimeProvider />
       {isDesktop ? <SiteHeader cartCount={cartCount} divider={divider} /> : null}
