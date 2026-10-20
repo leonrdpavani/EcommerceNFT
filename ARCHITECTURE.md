@@ -209,10 +209,10 @@ Resultados completos em [`lighthouse/RESULTS.md`](lighthouse/RESULTS.md) (median
 
 | Perfil  | Página                 | Perf. | A11y | BP  | SEO | LCP    | CLS   | TBT    |
 | ------- | ---------------------- | ----- | ---- | --- | --- | ------ | ----- | ------ |
-| desktop | `/`                    | 97    | 100  | 100 | 100 | 1,17 s | 0,002 | 18 ms  |
-| desktop | `/nft/emerald-ape-042` | 96    | 100  | 100 | 100 | 1,23 s | 0     | 0 ms   |
-| mobile  | `/`                    | 69    | 100  | 100 | 100 | 5,58 s | 0,015 | 151 ms |
-| mobile  | `/nft/emerald-ape-042` | 64    | 100  | 100 | 100 | 5,14 s | 0,078 | 337 ms |
+| desktop | `/`                    | 97    | 100  | 100 | 100 | 1,17 s | 0,002 | 26 ms  |
+| desktop | `/nft/emerald-ape-042` | 96    | 100  | 100 | 100 | 1,21 s | 0     | 0 ms   |
+| mobile  | `/`                    | 70    | 100  | 100 | 100 | 5,57 s | 0,015 | 128 ms |
+| mobile  | `/nft/emerald-ape-042` | 65    | 100  | 100 | 100 | 5,10 s | 0,078 | 311 ms |
 
 Accessibility, Best Practices e SEO atingem 100 em todos os casos, e o desktop passa a meta de performance.
 
