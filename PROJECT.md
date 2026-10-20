@@ -8,7 +8,8 @@ Marketplace de NFTs em **React + TypeScript**, fiel ao layout do Figma (desktop 
 
 ## Figma
 
-- https://www.figma.com/design/Ff0SksUi7UFtPWUO8kyNtw/Frontend-Challenge?node-id=0-1&p=f&t=ZNp8khPGkakHklJV-0
+- Cópia de trabalho (usada no desenvolvimento / MCP): https://www.figma.com/design/M3BZvRpgqt8E3Ri5RyLh0S/Frontend-Challenge--c%C3%B3pia-?node-id=0-1&p=f&t=XdWHeaXM1VjnPItl-0
+- Original do desafio (somente leitura): https://www.figma.com/design/Ff0SksUi7UFtPWUO8kyNtw/Frontend-Challenge?node-id=0-1&p=f&t=ZNp8khPGkakHklJV-0
 
 ## Stack
 
