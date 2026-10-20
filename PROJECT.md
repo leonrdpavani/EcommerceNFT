@@ -6,6 +6,10 @@
 
 Marketplace de NFTs em **React + TypeScript**, fiel ao layout do Figma (desktop e mobile), com fluxos de descoberta, compra e conta do colecionador. Toda a parte de backend (APIs, autenticação, carteiras, pagamentos e eventos em tempo real) é **simulada com MSW** — sem blockchain, extensões de carteira ou gateways reais.
 
+## Figma
+
+- https://www.figma.com/design/Ff0SksUi7UFtPWUO8kyNtw/Frontend-Challenge?node-id=0-1&p=f&t=ZNp8khPGkakHklJV-0
+
 ## Stack
 
 | Responsabilidade | Tecnologia |
@@ -176,3 +180,4 @@ Erros representados: validação, sessão inválida, sem permissão, não encont
 ## Pontuação
 
 Fidelidade visual 20 · Fluxos/UX 20 · Integração e estado 15 · Tempo real 10 · Mocking 10 · Testes 10 · Acessibilidade 5 · Performance 5 · Arquitetura/docs 5 — **Total 100**
+
