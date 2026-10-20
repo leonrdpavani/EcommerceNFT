@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query"
 import { createRootRouteWithContext, Outlet, useRouterState } from "@tanstack/react-router"
+import { lazy, Suspense } from "react"
 import { cn } from "cn"
 
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar"
@@ -10,6 +11,13 @@ import { useCart } from "@/features/cart/use-cart"
 import { NotFoundPage } from "@/features/not-found/not-found-page"
 import { SessionSync } from "@/features/session/session-sync"
 import { useIsDesktop } from "@/hooks/use-media-query"
+import { RealtimeProvider } from "@/realtime/realtime-provider"
+
+/** Painel de cenários: só existe com os mocks ativos (carregado sob demanda). */
+const ScenarioPanel =
+  import.meta.env.VITE_ENABLE_MOCKS === "false"
+    ? null
+    : lazy(() => import("@/features/dev/scenario-panel").then((module) => ({ default: module.ScenarioPanel })))
 
 export interface RouterContext {
   queryClient: QueryClient
@@ -41,6 +49,7 @@ function RootLayout() {
         Pular para o conteúdo
       </a>
       <SessionSync />
+      <RealtimeProvider />
       {isDesktop ? <SiteHeader cartCount={cartCount} divider={divider} /> : null}
       <main id="conteudo" tabIndex={-1} className={cn("outline-none", showTabBar && "pb-36")}>
         <Outlet />
@@ -48,6 +57,11 @@ function RootLayout() {
       {showFooter ? <SiteFooter /> : null}
       {showTabBar ? <MobileTabBar cartCount={cartCount} /> : null}
       <Toaster position={isDesktop ? "bottom-right" : "top-center"} />
+      {ScenarioPanel ? (
+        <Suspense fallback={null}>
+          <ScenarioPanel />
+        </Suspense>
+      ) : null}
     </>
   )
 }

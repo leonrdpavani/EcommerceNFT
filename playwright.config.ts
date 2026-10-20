@@ -34,8 +34,9 @@ export default defineConfig({
   webServer: {
     command: `npx vite --port ${PORT} --strictPort`,
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    // Servidor próprio dos testes (timeout de requisição reduzido para o cenário de timeout).
+    reuseExistingServer: false,
     timeout: 120_000,
-    env: { VITE_ENABLE_MOCKS: "true" },
+    env: { VITE_ENABLE_MOCKS: "true", VITE_REQUEST_TIMEOUT_MS: "3000" },
   },
 })

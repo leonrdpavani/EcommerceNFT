@@ -7,7 +7,7 @@ import { useEffect, useId, useRef, useState } from "react"
 import { Controller, useForm, type UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
-import type { Quote, Wallet } from "@/api/contracts"
+import type { Order, Quote, Wallet } from "@/api/contracts"
 import { isApiError } from "@/api/http"
 import { walletsQuery } from "@/api/queries"
 import { QueryError } from "@/components/feedback/query-error"
@@ -19,7 +19,8 @@ import { PromoSection, QuoteIssues, SummaryBlock } from "@/features/cart/cart-pa
 import { useQuote } from "@/features/cart/use-quote"
 import { CHECKOUT_DEFAULTS, checkoutSchema, type CheckoutValues } from "@/features/checkout/checkout-schema"
 import { CollectorFields } from "@/features/checkout/collector-fields"
-import { useCreateOrder } from "@/features/checkout/use-create-order"
+import { ReviewDialog } from "@/features/checkout/review-dialog"
+import { clearCheckoutDraft, readCheckoutDraft, useCheckoutDraft } from "@/features/checkout/use-checkout-draft"
 import { useSession } from "@/features/session/use-session"
 import { useIsDesktop } from "@/hooks/use-media-query"
 import { usePageTitle } from "@/hooks/use-page-title"
@@ -39,7 +40,8 @@ export function CheckoutPage() {
   const quoteState = useQuote()
   const { cart, quote } = quoteState
   const wallets = useQuery({ ...walletsQuery(user?.id ?? "anon"), enabled: Boolean(user) })
-  const createOrder = useCreateOrder()
+  const [reviewValues, setReviewValues] = useState<CheckoutValues | null>(null)
+  const [reviewOpen, setReviewOpen] = useState(false)
 
   const form = useForm<CheckoutValues>({
     resolver: zodResolver(checkoutSchema),
@@ -48,50 +50,47 @@ export function CheckoutPage() {
   })
 
   // Pré-preenche com o perfil e a carteira principal cadastrados (sem sobrescrever edições).
+  // Prioridade: rascunho desta aba (retomada após expirar a sessão) > perfil/carteira principal.
   const primary = wallets.data?.items.find((wallet) => wallet.slot === "primary")
   const prefilled = useRef(false)
   useEffect(() => {
     if (prefilled.current || !user || !wallets.data || form.formState.isDirty) return
     prefilled.current = true
-    form.reset({ ...CHECKOUT_DEFAULTS, ...prefill(user, primary) })
+    form.reset({ ...CHECKOUT_DEFAULTS, ...prefill(user, primary), ...readCheckoutDraft(user.id) })
   }, [user, primary, wallets.data, form])
+  useCheckoutDraft(user?.id ?? null, form)
 
   const onValid = (values: CheckoutValues) => {
-    if (!quote.data) return
-    createOrder.mutate(
-      {
-        quoteId: quote.data.id,
-        network: values.network,
-        walletType: values.paymentWallet,
-        collector: {
-          displayName: values.displayName,
-          username: values.username,
-          profileName: values.profileName,
-          email: values.email,
-          walletAddress: values.walletAddress,
-          secondaryWallet: values.secondaryWallet,
-          referralCode: values.referralCode,
-          ensName: `${values.ensName}${values.ensSuffix}`,
-          note: values.note,
-        },
-      },
-      {
-        onSuccess: (order) => void navigate({ to: "/pedido/$orderId", params: { orderId: order.id } }),
-        onError: (error) => {
-          if (isApiError(error) && error.code === "QUOTE_OUTDATED") {
-            toast.warning(error.message)
-            void queryClient.invalidateQueries({ queryKey: ["cart"] })
-            return
-          }
-          toast.error(isApiError(error) ? error.message : "Não foi possível criar o pedido.")
-        },
-      }
-    )
+    setReviewValues(values)
+    setReviewOpen(true)
   }
 
+  function handleOrderPlaced(order: Order) {
+    if (user) clearCheckoutDraft(user.id)
+    setReviewOpen(false)
+    void navigate({ to: "/pedido/$orderId", params: { orderId: order.id } })
+  }
+
+  function handleQuoteOutdated() {
+    toast.warning("Os valores mudaram. Confira a nova cotação e confirme novamente.")
+    void queryClient.invalidateQueries({ queryKey: ["cart"] })
+  }
+
+  const review = (
+    <ReviewDialog
+      open={reviewOpen}
+      onOpenChange={setReviewOpen}
+      values={reviewValues}
+      quote={quote.data}
+      quoteFetching={quote.isFetching}
+      onOrderPlaced={handleOrderPlaced}
+      onQuoteOutdated={handleQuoteOutdated}
+    />
+  )
+
   const submit = form.handleSubmit(onValid, () => toast.error("Revise os campos destacados antes de confirmar a compra."))
-  const busy = createOrder.isPending
-  const blocked = !quote.data || quote.data.issues.length > 0 || quote.isFetching
+  const busy = reviewOpen
+  const blocked = !quote.data || quote.data.issues.length > 0
 
   if (cart.isError && !cart.data) {
     return (
@@ -101,7 +100,8 @@ export function CheckoutPage() {
     )
   }
 
-  if (cart.data && cart.data.items.length === 0) {
+  // Durante a revisão/envio o carrinho pode esvaziar (pedido concluído): mantém a tela.
+  if (cart.data && cart.data.items.length === 0 && !reviewOpen) {
     return (
       <div className="container-page flex flex-col items-center gap-4 py-24 text-center">
         <h1 className="text-xl font-bold text-cream">Não há itens para pagar</h1>
@@ -114,7 +114,12 @@ export function CheckoutPage() {
   }
 
   if (!isDesktop) {
-    return <MobileCheckout form={form} quoteState={quoteState} wallets={wallets.data?.items ?? []} onSubmit={submit} busy={busy} blocked={blocked} />
+    return (
+      <>
+        <MobileCheckout form={form} quoteState={quoteState} wallets={wallets.data?.items ?? []} onSubmit={submit} busy={busy} blocked={blocked} />
+        {review}
+      </>
+    )
   }
 
   return (
@@ -170,11 +175,12 @@ export function CheckoutPage() {
             />
           </fieldset>
 
-          <Button type="submit" size="lg" className="mt-1 w-full rounded-lg text-[15px]" disabled={busy || blocked} aria-busy={busy}>
-            {busy ? "Enviando pedido…" : "Confirmar compra"}
+          <Button type="submit" size="lg" className="mt-1 w-full rounded-lg text-[15px]" disabled={busy || blocked}>
+            Confirmar compra
           </Button>
         </section>
       </form>
+      {review}
     </div>
   )
 }
@@ -398,8 +404,8 @@ function MobileCheckout({
         </p>
       </div>
 
-      <Button type="submit" variant="cta" size="xl" className="w-full text-[15px]" disabled={busy || blocked} aria-busy={busy}>
-        {busy ? "Enviando pedido…" : "Confirmar compra"}
+      <Button type="submit" variant="cta" size="xl" className="w-full text-[15px]" disabled={busy || blocked}>
+        Confirmar compra
       </Button>
     </form>
   )

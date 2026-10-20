@@ -10,6 +10,7 @@ export interface StoredSession {
 
 const SESSION_KEY = "kurio:session"
 const CART_KEY = "kurio:cart-id"
+const PRIVATE_PREFIXES = ["kurio:checkout-draft:", "kurio:order-attempt:", "kurio:coupon"]
 
 function read<T>(key: string): T | null {
   try {
@@ -34,4 +35,14 @@ export const clientStorage = {
   setSession: (session: StoredSession | null) => write(SESSION_KEY, session),
   getCartId: () => read<string>(CART_KEY),
   setCartId: (cartId: string | null) => write(CART_KEY, cartId),
+  /** Remove rascunhos de checkout, tentativas de pedido e cupom (dados da sessão anterior). */
+  clearPrivateDrafts: () => {
+    try {
+      for (const key of Object.keys(sessionStorage)) {
+        if (PRIVATE_PREFIXES.some((prefix) => key.startsWith(prefix))) sessionStorage.removeItem(key)
+      }
+    } catch {
+      // sem sessionStorage
+    }
+  },
 }

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { createFileRoute, notFound } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 
 import { isApiError } from "@/api/http"
 import { nftQuery } from "@/api/queries"
@@ -9,34 +9,33 @@ import { NftDetailSkeleton } from "@/features/nft-detail/nft-detail-skeleton"
 import { NotFoundPage } from "@/features/not-found/not-found-page"
 
 export const Route = createFileRoute("/nft/$nftId")({
-  loader: async ({ context, params }) => {
-    try {
-      await context.queryClient.ensureQueryData(nftQuery(params.nftId))
-    } catch (error) {
-      if (isApiError(error) && error.code === "NOT_FOUND") throw notFound()
-      throw error
-    }
+  // Pré-carrega sem bloquear a navegação: o skeleton aparece imediatamente.
+  loader: ({ context, params }) => {
+    void context.queryClient.prefetchQuery(nftQuery(params.nftId))
   },
-  pendingComponent: NftDetailSkeleton,
-  pendingMs: 150,
   component: NftDetailRoute,
-  errorComponent: ({ error, reset }) => (
-    <div className="container-page py-16">
-      <QueryError message={error instanceof Error ? error.message : "Erro inesperado."} onRetry={reset} />
-    </div>
-  ),
-  notFoundComponent: () => (
-    <NotFoundPage
-      title="NFT não encontrado"
-      description="Este NFT não existe ou foi removido do mercado. Explore o catálogo para encontrar outras obras."
-    />
-  ),
 })
 
 function NftDetailRoute() {
   const { nftId } = Route.useParams()
-  const { data: nft } = useQuery(nftQuery(nftId))
-  if (!nft) return <NftDetailSkeleton />
+  const nft = useQuery(nftQuery(nftId))
+
+  if (nft.isPending) return <NftDetailSkeleton />
+  if (nft.isError) {
+    if (isApiError(nft.error) && nft.error.code === "NOT_FOUND") {
+      return (
+        <NotFoundPage
+          title="NFT não encontrado"
+          description="Este NFT não existe ou foi removido do mercado. Explore o catálogo para encontrar outras obras."
+        />
+      )
+    }
+    return (
+      <div className="container-page py-16">
+        <QueryError message={nft.error.message} onRetry={() => void nft.refetch()} />
+      </div>
+    )
+  }
   // `key` reinicia edição/quantidade ao navegar entre NFTs.
-  return <NftDetailPage key={nft.id} nft={nft} />
+  return <NftDetailPage key={nft.data.id} nft={nft.data} />
 }

@@ -22,9 +22,13 @@ export function establishSession(queryClient: QueryClient, session: SessionRespo
   queryClient.setQueryData(queryKeys.session, session)
 }
 
-/** Limpa sessão e todos os dados privados em cache (logout, expiração, troca de usuário). */
-export function clearSession(queryClient: QueryClient) {
+/**
+ * Limpa sessão e todos os dados privados em cache (logout, expiração, troca de usuário).
+ * Na expiração, o rascunho do checkout (por usuário) é mantido para a retomada após o login.
+ */
+export function clearSession(queryClient: QueryClient, { keepDrafts = false } = {}) {
   clientStorage.setSession(null)
+  if (!keepDrafts) clientStorage.clearPrivateDrafts()
   clientStorage.setCartId(null)
   queryClient.removeQueries({ queryKey: ["user"] })
   queryClient.removeQueries({ queryKey: ["cart"] })

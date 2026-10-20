@@ -31,7 +31,7 @@ export function isApiError(error: unknown): error is ApiError {
   return error instanceof ApiError
 }
 
-export const REQUEST_TIMEOUT_MS = 10_000
+export const REQUEST_TIMEOUT_MS = Number(import.meta.env.VITE_REQUEST_TIMEOUT_MS) || 10_000
 
 export const http = axios.create({
   baseURL: "/api",

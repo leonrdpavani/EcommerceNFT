@@ -11,7 +11,6 @@ import type {
   WalletsResponse,
 } from "@/api/contracts"
 
-import { networkDelay } from "../config"
 import { hashPassword, nowIso, persist, publicUser } from "../db"
 import { API, apiError, readJson, requireAuth, validationError } from "../http-utils"
 
@@ -24,14 +23,12 @@ const MAX_AVATAR_LENGTH = 3_000_000
 export const accountHandlers = [
   // Favoritos -------------------------------------------------------------
   http.get(`${API}/favorites`, async ({ request }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     return HttpResponse.json<FavoritesResponse>({ nftIds: auth.db.favorites[auth.user.id] ?? [] })
   }),
 
   http.put(`${API}/favorites/:nftId`, async ({ request, params }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     const nftId = params.nftId as string
@@ -44,7 +41,6 @@ export const accountHandlers = [
   }),
 
   http.delete(`${API}/favorites/:nftId`, async ({ request, params }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     auth.db.favorites[auth.user.id] = (auth.db.favorites[auth.user.id] ?? []).filter((id) => id !== params.nftId)
@@ -54,14 +50,12 @@ export const accountHandlers = [
 
   // Perfil ------------------------------------------------------------------
   http.get(`${API}/profile`, async ({ request }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     return HttpResponse.json<User>(publicUser(auth.user))
   }),
 
   http.patch(`${API}/profile`, async ({ request }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     const body = await readJson<ProfileUpdateRequest>(request)
@@ -96,7 +90,6 @@ export const accountHandlers = [
   }),
 
   http.post(`${API}/profile/password`, async ({ request }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     const body = await readJson<PasswordChangeRequest>(request)
@@ -113,7 +106,6 @@ export const accountHandlers = [
   }),
 
   http.put(`${API}/profile/avatar`, async ({ request }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     const body = await readJson<AvatarUpdateRequest>(request)
@@ -128,14 +120,12 @@ export const accountHandlers = [
 
   // Carteiras ---------------------------------------------------------------
   http.get(`${API}/wallets`, async ({ request }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     return HttpResponse.json<WalletsResponse>({ items: auth.db.wallets[auth.user.id] ?? [] })
   }),
 
   http.put(`${API}/wallets/:slot`, async ({ request, params }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     const slot = params.slot

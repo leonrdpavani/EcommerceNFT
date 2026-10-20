@@ -2,7 +2,7 @@ import { http, HttpResponse } from "msw"
 
 import type { LoginRequest, SessionResponse, SignupRequest } from "@/api/contracts"
 
-import { getMockConfig, networkDelay } from "../config"
+import { getMockConfig } from "../config"
 import { hashPassword, nextId, nowIso, persist, publicUser, type Db, type DbUser } from "../db"
 import { API, apiError, findOrCreateCart, MAX_PER_LINE, readAuth, readJson, requireAuth, touchCart, validationError } from "../http-utils"
 
@@ -36,7 +36,6 @@ function mergeVisitorCart(db: Db, userId: string, visitorCartId: string | null) 
 
 export const sessionHandlers = [
   http.post(`${API}/session`, async ({ request }) => {
-    await networkDelay()
     const body = await readJson<LoginRequest>(request)
     const { db } = await readAuth(request)
     const email = body.email?.trim().toLowerCase() ?? ""
@@ -50,7 +49,6 @@ export const sessionHandlers = [
   }),
 
   http.get(`${API}/session`, async ({ request }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     const token = request.headers.get("authorization")!.slice(7)
@@ -59,7 +57,6 @@ export const sessionHandlers = [
   }),
 
   http.delete(`${API}/session`, async ({ request }) => {
-    await networkDelay()
     const { db } = await readAuth(request)
     const token = request.headers.get("authorization")?.slice(7)
     db.sessions = db.sessions.filter((item) => item.token !== token)
@@ -68,7 +65,6 @@ export const sessionHandlers = [
   }),
 
   http.post(`${API}/accounts`, async ({ request }) => {
-    await networkDelay()
     const body = await readJson<SignupRequest>(request)
     const { db } = await readAuth(request)
     const username = body.username?.trim() ?? ""

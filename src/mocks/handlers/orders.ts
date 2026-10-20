@@ -1,68 +1,47 @@
-import { http, HttpResponse } from "msw"
+import { delay, http, HttpResponse } from "msw"
 
-import type { CreateOrderRequest, Order } from "@/api/contracts"
+import type { CreateOrderRequest, Order, WalletConnection, WalletConnectRequest } from "@/api/contracts"
 
-import { getMockConfig, networkDelay } from "../config"
-import { nextId, nowIso, persist, type Db, type DbOrder } from "../db"
-import { API, apiError, computeQuote, findEdition, readJson, requireAuth, touchCart } from "../http-utils"
+import { getMockConfig } from "../config"
+import { nextId, nowIso, persist, type DbOrder } from "../db"
+import { API, apiError, computeQuote, readJson, requireAuth } from "../http-utils"
+import { scheduleSettlement, settleOrder, toOrderDto } from "../orders-service"
 
 const WALLET_TYPES = ["walletconnect", "metamask", "coinbase"]
 const NETWORKS = ["ethereum", "polygon", "solana"]
+const ADDRESS = /^0x[a-fA-F0-9]{40}$/
 
-function toOrderDto(order: DbOrder): Order {
-  const { userId: _u, quoteId: _q, cartId: _c, fingerprint: _f, settleAt: _s, outcome: _o, ...dto } = order
-  return dto
-}
+/** Atraso usado no cenário "timeout no pedido": maior que o timeout do cliente. */
+const ORDER_TIMEOUT_DELAY_MS = 15_000
 
-function fakeHash(seed: string) {
-  let hash = ""
-  let value = Array.from(seed).reduce((acc, char) => (acc * 31 + char.charCodeAt(0)) >>> 0, 7)
-  while (hash.length < 64) {
-    value = (value * 1103515245 + 12345) >>> 0
-    hash += value.toString(16).padStart(8, "0")
-  }
-  return `0x${hash.slice(0, 64)}`
-}
-
-/**
- * Conclui a simulação do pagamento quando o prazo passa. Na confirmação, baixa a
- * disponibilidade e remove do carrinho apenas os itens e quantidades comprados.
- */
-export function settleOrder(db: Db, order: DbOrder) {
-  if (order.status !== "pending" || new Date(order.settleAt).getTime() > Date.now()) return false
-
-  if (order.outcome === "confirmed") {
-    for (const line of order.items) {
-      const found = findEdition(db, line.nftId, line.editionId)
-      if (found) {
-        found.edition.available = Math.max(0, found.edition.available - line.quantity)
-        found.nft.version += 1
-      }
-    }
-    const cart = db.carts.find((item) => item.id === order.cartId)
-    if (cart) {
-      for (const line of order.items) {
-        const item = cart.items.find((entry) => entry.nftId === line.nftId && entry.editionId === line.editionId)
-        if (item) item.quantity -= line.quantity
-      }
-      cart.items = cart.items.filter((item) => item.quantity > 0)
-      touchCart(cart)
-    }
-    order.status = "confirmed"
-    order.transactionHash = fakeHash(order.id)
-    order.explorerUrl = `https://etherscan.io/tx/${order.transactionHash}`
-  } else {
-    order.status = "declined"
-    order.failureReason = "A carteira recusou a transação. Nenhum valor foi cobrado."
-  }
-  order.version += 1
-  order.updatedAt = nowIso()
-  return true
-}
+/** Sessões de carteira simuladas (em memória: some ao recarregar, como uma extensão real). */
+const walletSessions = new Map<string, { userId: string; connection: WalletConnection; disconnected: boolean }>()
 
 export const orderHandlers = [
+  // Simulação da extensão da carteira: conectar / recusar / desconectar.
+  http.post(`${API}/wallet/connect`, async ({ request }) => {
+    const auth = await requireAuth(request)
+    if (auth instanceof Response) return auth
+    const body = await readJson<WalletConnectRequest>(request)
+    if (!WALLET_TYPES.includes(body.walletType ?? "") || !NETWORKS.includes(body.network ?? "") || !ADDRESS.test(body.address ?? "")) {
+      return apiError(422, "VALIDATION_ERROR", "Informe carteira, rede e um endereço 0x válido.")
+    }
+    const config = getMockConfig()
+    if (config.wallet === "refuse") {
+      return apiError(403, "WALLET_REJECTED", "A conexão foi recusada na carteira. Nenhum dado foi compartilhado.")
+    }
+    const connection: WalletConnection = {
+      sessionId: nextId("wsess"),
+      walletType: body.walletType!,
+      network: body.network!,
+      address: body.address!,
+      connectedAt: nowIso(),
+    }
+    walletSessions.set(connection.sessionId, { userId: auth.user.id, connection, disconnected: config.wallet === "disconnect" })
+    return HttpResponse.json<WalletConnection>(connection, { status: 201 })
+  }),
+
   http.post(`${API}/orders`, async ({ request }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     const { db, user } = auth
@@ -81,12 +60,23 @@ export const orderHandlers = [
         return apiError(409, "IDEMPOTENCY_CONFLICT", "Esta tentativa de compra já foi usada com outros dados.")
       }
       settleOrder(db, existing)
-      persist()
       return HttpResponse.json<Order>(toOrderDto(existing), { status: 200 })
     }
 
-    if (!body.quoteId || !body.collector || !WALLET_TYPES.includes(body.walletType ?? "") || !NETWORKS.includes(body.network ?? "")) {
+    if (
+      !body.quoteId ||
+      !body.collector ||
+      !body.walletSessionId ||
+      !WALLET_TYPES.includes(body.walletType ?? "") ||
+      !NETWORKS.includes(body.network ?? "")
+    ) {
       return apiError(422, "VALIDATION_ERROR", "Dados do pedido incompletos.")
+    }
+
+    const walletSession = walletSessions.get(body.walletSessionId)
+    if (!walletSession || walletSession.userId !== user.id || walletSession.disconnected) {
+      walletSessions.delete(body.walletSessionId)
+      return apiError(409, "WALLET_DISCONNECTED", "Sua carteira desconectou. Conecte novamente para enviar o pedido.")
     }
 
     const quote = db.quotes[body.quoteId]
@@ -103,9 +93,10 @@ export const orderHandlers = [
       fresh.quote.total !== quote.total ||
       fresh.quote.issues.length > 0
     if (outdated) {
-      return apiError(409, "QUOTE_OUTDATED", "Preço, disponibilidade ou taxas mudaram. Revise e confirme novamente.")
+      return apiError(409, "QUOTE_OUTDATED", "Preço, disponibilidade ou taxas mudaram. Revise os novos valores e confirme novamente.")
     }
 
+    const config = getMockConfig()
     const createdAt = nowIso()
     const order: DbOrder = {
       id: nextId("ord"),
@@ -128,24 +119,29 @@ export const orderHandlers = [
       userId: user.id,
       quoteId: quote.id,
       cartId: cart.id,
+      walletSessionId: body.walletSessionId,
       fingerprint,
-      settleAt: new Date(Date.now() + getMockConfig().settleMs).toISOString(),
-      outcome: "confirmed",
+      settleAt: new Date(Date.now() + config.settleMs).toISOString(),
+      outcome: config.payment === "decline" ? "declined" : "confirmed",
     }
     db.orders[order.id] = order
     db.idempotency[key] = order.id
     persist()
+    scheduleSettlement(order)
+
+    // Cenário: o pedido já existe no servidor, mas a resposta chega tarde demais.
+    if (config.orderTimeout) await delay(ORDER_TIMEOUT_DELAY_MS)
+
     return HttpResponse.json<Order>(toOrderDto(order), { status: 201 })
   }),
 
   http.get(`${API}/orders/:id`, async ({ request, params }) => {
-    await networkDelay()
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
     const order = auth.db.orders[params.id as string]
     if (!order) return apiError(404, "NOT_FOUND", "Pedido não encontrado.")
     if (order.userId !== auth.user.id) return apiError(403, "FORBIDDEN", "Você não tem permissão para ver este pedido.")
-    if (settleOrder(auth.db, order)) persist()
+    settleOrder(auth.db, order)
     return HttpResponse.json<Order>(toOrderDto(order))
   }),
 ]

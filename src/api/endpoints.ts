@@ -19,6 +19,8 @@ import type {
   User,
   Wallet,
   WalletInput,
+  WalletConnection,
+  WalletConnectRequest,
   WalletSlot,
   WalletsResponse,
 } from "@/api/contracts"
@@ -82,6 +84,9 @@ export const api = {
   updateCartItem: (itemId: string, quantity: number) => http.patch<Cart>(`/cart/items/${itemId}`, { quantity }).then((res) => res.data),
   removeCartItem: (itemId: string) => http.delete<Cart>(`/cart/items/${itemId}`).then((res) => res.data),
   createQuote: (body: QuoteRequest, { signal }: Signal = {}) => http.post<Quote>("/quotes", body, { signal }).then((res) => res.data),
+
+  // Carteira (simulação de conexão com a extensão)
+  connectWallet: (body: WalletConnectRequest) => http.post<WalletConnection>("/wallet/connect", body).then((res) => res.data),
 
   // Pedidos
   createOrder: (body: CreateOrderRequest, idempotencyKey: string) =>

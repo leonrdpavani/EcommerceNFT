@@ -17,7 +17,7 @@ export function SessionSync() {
   useEffect(
     () =>
       onSessionRejected((reason) => {
-        clearSession(queryClient)
+        clearSession(queryClient, { keepDrafts: reason === "expired" })
         const { pathname, href } = router.state.location
         if (pathname === "/entrar" || pathname === "/cadastro") return
         toast.warning(reason === "expired" ? "Sua sessão expirou. Entre novamente para continuar." : "Entre na sua conta para continuar.")

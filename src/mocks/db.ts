@@ -38,6 +38,7 @@ export interface DbOrder extends Order {
   userId: string
   quoteId: string
   cartId: string
+  walletSessionId: string
   /** Hash do conteúdo da requisição — detecta reuso da chave com conteúdo diferente. */
   fingerprint: string
   /** Momento em que a simulação de pagamento conclui o pedido. */

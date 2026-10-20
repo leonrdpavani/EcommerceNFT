@@ -20,6 +20,8 @@ export type ApiErrorCode =
   | "IDEMPOTENCY_CONFLICT" // 409 — chave reutilizada com conteúdo diferente
   | "COUPON_INVALID" // 422 — cupom inexistente
   | "COUPON_EXPIRED" // 422 — cupom expirado
+  | "WALLET_REJECTED" // 403 — o usuário recusou a conexão/assinatura na carteira
+  | "WALLET_DISCONNECTED" // 409 — a carteira desconectou antes do envio
   | "TRANSIENT" // 503 — falha temporária, pode tentar novamente
   | "INTERNAL" // 500 — erro inesperado
 
@@ -257,6 +259,8 @@ export interface CreateOrderRequest {
   quoteId: string
   network: NetworkId
   walletType: WalletType
+  /** Sessão obtida em POST /api/wallet/connect (simulação da extensão da carteira). */
+  walletSessionId: string
   collector: CollectorDetails
 }
 
@@ -279,4 +283,50 @@ export interface Order {
   failureReason: string | null
   createdAt: string
   updatedAt: string
+}
+
+// ---------------------------------------------------------------------------
+// Conexão de carteira (simulada)
+// ---------------------------------------------------------------------------
+
+/** POST /api/wallet/connect */
+export interface WalletConnectRequest {
+  walletType: WalletType
+  network: NetworkId
+  address: string
+}
+
+export interface WalletConnection {
+  sessionId: string
+  walletType: WalletType
+  network: NetworkId
+  address: string
+  connectedAt: string
+}
+
+// ---------------------------------------------------------------------------
+// Tempo real (Socket.IO)
+// ---------------------------------------------------------------------------
+
+/**
+ * Envelope de todos os eventos: identidade estável (id), recurso afetado e versão.
+ * O cliente descarta duplicatas (mesmo id) e eventos antigos (versão menor ou igual à conhecida).
+ */
+export interface RealtimeEvent<TType extends string, TData> {
+  id: string
+  type: TType
+  resource: { type: "nft" | "order"; id: string }
+  version: number
+  occurredAt: string
+  /** Presente em eventos privados: o cliente ignora eventos de outro usuário. */
+  userId?: string
+  data: TData
+}
+
+export type NftUpdatedEvent = RealtimeEvent<"nft.updated", Nft>
+export type OrderUpdatedEvent = RealtimeEvent<"order.updated", Order>
+
+export interface RealtimeServerEvents {
+  "nft.updated": (event: NftUpdatedEvent) => void
+  "order.updated": (event: OrderUpdatedEvent) => void
 }

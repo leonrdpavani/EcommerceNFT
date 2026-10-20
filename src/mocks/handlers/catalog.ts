@@ -4,7 +4,6 @@ import type { NftDetailResponse, NftListResponse, RelatedNftsResponse } from "@/
 import { catalogSearchSchema } from "@/lib/catalog-search"
 
 import { queryCatalog } from "../catalog-query"
-import { networkDelay } from "../config"
 import { getDb } from "../db"
 import { API, apiError } from "../http-utils"
 
@@ -20,7 +19,6 @@ function numberParam(params: URLSearchParams, key: string) {
 
 export const catalogHandlers = [
   http.get(`${API}/nfts`, async ({ request }) => {
-    await networkDelay()
     const params = new URL(request.url).searchParams
     const parsed = catalogSearchSchema.safeParse({
       q: params.get("q") ?? undefined,
@@ -38,7 +36,6 @@ export const catalogHandlers = [
   }),
 
   http.get(`${API}/nfts/:id`, async ({ params }) => {
-    await networkDelay()
     const db = await getDb()
     const nft = db.nfts.find((item) => item.id === params.id)
     if (!nft) return apiError(404, "NOT_FOUND", "NFT não encontrado.")
@@ -46,7 +43,6 @@ export const catalogHandlers = [
   }),
 
   http.get(`${API}/nfts/:id/related`, async ({ params }) => {
-    await networkDelay()
     const db = await getDb()
     const nft = db.nfts.find((item) => item.id === params.id)
     const items = db.nfts

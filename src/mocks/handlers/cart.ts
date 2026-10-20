@@ -2,7 +2,6 @@ import { http, HttpResponse } from "msw"
 
 import type { AddCartItemRequest, Cart, Quote, QuoteRequest, UpdateCartItemRequest } from "@/api/contracts"
 
-import { networkDelay } from "../config"
 import { nextId, persist } from "../db"
 import { API, apiError, computeQuote, findEdition, MAX_PER_LINE, readJson, resolveCart, toCartDto, touchCart } from "../http-utils"
 
@@ -12,13 +11,11 @@ function isPositiveInt(value: unknown): value is number {
 
 export const cartHandlers = [
   http.get(`${API}/cart`, async ({ request }) => {
-    await networkDelay()
     const { db, cart } = await resolveCart(request)
     return HttpResponse.json<Cart>(toCartDto(db, cart))
   }),
 
   http.post(`${API}/cart/items`, async ({ request }) => {
-    await networkDelay()
     const body = await readJson<AddCartItemRequest>(request)
     const { db, cart } = await resolveCart(request)
     if (!body.nftId || !body.editionId || !isPositiveInt(body.quantity)) {
@@ -45,7 +42,6 @@ export const cartHandlers = [
   }),
 
   http.patch(`${API}/cart/items/:itemId`, async ({ request, params }) => {
-    await networkDelay()
     const body = await readJson<UpdateCartItemRequest>(request)
     const { db, cart } = await resolveCart(request)
     const item = cart.items.find((entry) => entry.id === params.itemId)
@@ -63,7 +59,6 @@ export const cartHandlers = [
   }),
 
   http.delete(`${API}/cart/items/:itemId`, async ({ request, params }) => {
-    await networkDelay()
     const { db, cart } = await resolveCart(request)
     if (!cart.items.some((entry) => entry.id === params.itemId)) {
       return apiError(404, "NOT_FOUND", "Item não encontrado no carrinho.")
@@ -75,7 +70,6 @@ export const cartHandlers = [
   }),
 
   http.post(`${API}/quotes`, async ({ request }) => {
-    await networkDelay()
     const body = await readJson<QuoteRequest>(request)
     const { db, cart } = await resolveCart(request)
     const result = computeQuote(db, cart, body.couponCode || undefined)
