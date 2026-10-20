@@ -1,17 +1,30 @@
+import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, notFound } from "@tanstack/react-router"
 
+import { isApiError } from "@/api/http"
+import { nftQuery } from "@/api/queries"
+import { QueryError } from "@/components/feedback/query-error"
 import { NftDetailPage } from "@/features/nft-detail/nft-detail-page"
+import { NftDetailSkeleton } from "@/features/nft-detail/nft-detail-skeleton"
 import { NotFoundPage } from "@/features/not-found/not-found-page"
-import { findNft } from "@/preview"
 
 export const Route = createFileRoute("/nft/$nftId")({
-  // Pré-visualização: na integração, o loader usa GET /nfts/:id (404 → notFound()).
-  loader: ({ params }) => {
-    const nft = findNft(params.nftId)
-    if (!nft) throw notFound()
-    return nft
+  loader: async ({ context, params }) => {
+    try {
+      await context.queryClient.ensureQueryData(nftQuery(params.nftId))
+    } catch (error) {
+      if (isApiError(error) && error.code === "NOT_FOUND") throw notFound()
+      throw error
+    }
   },
+  pendingComponent: NftDetailSkeleton,
+  pendingMs: 150,
   component: NftDetailRoute,
+  errorComponent: ({ error, reset }) => (
+    <div className="container-page py-16">
+      <QueryError message={error instanceof Error ? error.message : "Erro inesperado."} onRetry={reset} />
+    </div>
+  ),
   notFoundComponent: () => (
     <NotFoundPage
       title="NFT não encontrado"
@@ -21,7 +34,9 @@ export const Route = createFileRoute("/nft/$nftId")({
 })
 
 function NftDetailRoute() {
-  const nft = Route.useLoaderData()
+  const { nftId } = Route.useParams()
+  const { data: nft } = useQuery(nftQuery(nftId))
+  if (!nft) return <NftDetailSkeleton />
   // `key` reinicia edição/quantidade ao navegar entre NFTs.
   return <NftDetailPage key={nft.id} nft={nft} />
 }

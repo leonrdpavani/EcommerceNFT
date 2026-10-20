@@ -48,7 +48,7 @@ export const walletSchema = z.object({
   secondaryAddress: z
     .string()
     .trim()
-    .refine((value) => value === "" || /^0x[a-fA-F0-9]{40}$/.test(value) || /^[a-z0-9-]+\.eth$/i.test(value), {
+    .refine((value) => value === "" || /^0x[a-fA-F0-9]{40}$/.test(value) || /^[a-z0-9-]+(\.[a-z0-9-]+)*\.eth$/i.test(value), {
       message: "Informe um endereço 0x ou um nome ENS (ex.: nova.eth).",
     }),
   walletType: z.enum(["walletconnect", "metamask", "coinbase"], { error: "Selecione o tipo de carteira." }),

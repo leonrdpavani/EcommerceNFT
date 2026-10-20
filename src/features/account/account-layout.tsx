@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import { cn } from "cn"
 
 import { MobileScreenHeader } from "@/components/layout/page-parts"
+import { useLogout } from "@/features/session/use-session"
 import { useIsDesktop } from "@/hooks/use-media-query"
 import { notifyUnavailable } from "@/lib/soon"
 
@@ -35,10 +36,15 @@ export function AccountLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const navigate = useNavigate()
 
+  const logoutMutation = useLogout()
+
   function logout() {
-    // Pré-visualização: na integração, DELETE /session limpa cache privado e subscriptions.
-    toast.info("Pré-visualização: o logout será conectado à sessão na próxima etapa.")
-    void navigate({ to: "/" })
+    logoutMutation.mutate(undefined, {
+      onSettled: () => {
+        toast.success("Você saiu da sua conta.")
+        void navigate({ to: "/" })
+      },
+    })
   }
 
   if (!isDesktop) {

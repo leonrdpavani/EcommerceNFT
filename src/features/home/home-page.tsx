@@ -1,9 +1,14 @@
 import { SearchXIcon } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { cn } from "cn"
 
-import { NftCard } from "@/components/nft/nft-card"
+import { NftCard, NftCardSkeleton } from "@/components/nft/nft-card"
+import { QueryError } from "@/components/feedback/query-error"
+import { catalogQuery } from "@/api/queries"
+import { useAddToCartAction } from "@/features/cart/use-add-to-cart-action"
+import { useFavorites, useToggleFavorite } from "@/features/favorites/use-favorites"
+import { defaultEdition } from "@/lib/editions"
 import { Button } from "@/components/ui/button"
 import { BlogSection } from "@/features/home/blog-section"
 import { CatalogFilters, type CatalogPatch } from "@/features/home/catalog-filters"
@@ -15,9 +20,9 @@ import { Pagination } from "@/features/home/pagination"
 import { PromoCards } from "@/features/home/promo-cards"
 import { useIsDesktop } from "@/hooks/use-media-query"
 import type { CatalogSearch } from "@/lib/catalog-search"
-import { queryCatalog } from "@/mocks/catalog-query"
-import { NFT_FIXTURES } from "@/mocks/fixtures/nfts"
 import type { Nft } from "@/types/domain"
+
+const EMPTY_FACETS = { categories: {}, networks: {} }
 
 interface HomePageProps {
   search: CatalogSearch
@@ -27,56 +32,71 @@ interface HomePageProps {
 
 export function HomePage({ search, onSearchChange, onReset }: HomePageProps) {
   const isDesktop = useIsDesktop()
-  // Pré-visualização: na integração, os resultados vêm de GET /nfts via TanStack Query.
-  const result = useMemo(() => queryCatalog(NFT_FIXTURES, search), [search])
-  const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const catalog = useQuery(catalogQuery(search))
+  const favorites = useFavorites()
+  const toggleFavorite = useToggleFavorite()
+  const addToCart = useAddToCartAction()
 
-  function toggleFavorite(nft: Nft) {
-    setFavorites((current) => {
-      const next = new Set(current)
-      if (next.has(nft.id)) next.delete(nft.id)
-      else next.add(nft.id)
-      return next
-    })
+  const result = catalog.data
+  const facets = result?.facets ?? EMPTY_FACETS
+
+  function handleFavorite(nft: Nft) {
+    toggleFavorite.toggle(nft.id, nft.name, favorites.ids.has(nft.id))
   }
 
-  function addToCart(nft: Nft) {
-    toast.info(`Pré-visualização: ${nft.name} ainda não é enviado ao carrinho nesta etapa.`)
+  function handleAddToCart(nft: Nft) {
+    const edition = defaultEdition(nft)
+    if (!edition) {
+      toast.error(`Todas as edições de ${nft.name} estão esgotadas.`)
+      return
+    }
+    addToCart.add({ nftId: nft.id, editionId: edition.id, quantity: 1, name: nft.name, editionLabel: edition.label })
   }
 
-  const resultsLabel = `${result.total} ${result.total === 1 ? "NFT encontrado" : "NFTs encontrados"}`
+  const total = result?.total ?? 0
+  const resultsLabel = catalog.isPending ? "Carregando NFTs…" : `${total} ${total === 1 ? "NFT encontrado" : "NFTs encontrados"}`
 
-  const grid =
-    result.items.length > 0 ? (
-      <ul
-        className={cn(
-          "grid",
-          isDesktop
-            ? "grid-cols-3 gap-x-[30px] gap-y-[72px]"
-            : "grid-cols-2 gap-x-4 gap-y-6 pb-8 md:grid-cols-3 max-md:[&>li:nth-child(even)]:translate-y-8"
-        )}
-      >
-        {result.items.map((nft, index) => (
-          <li key={nft.id}>
-            <NftCard
-              nft={nft}
-              variant={isDesktop ? "grid" : "mobile"}
-              favorite={favorites.has(nft.id)}
-              onToggleFavorite={toggleFavorite}
-              onAddToCart={addToCart}
-              priority={!isDesktop && index < 2}
-            />
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <EmptyCatalog onReset={onReset} />
-    )
+  const gridClass = cn(
+    "grid transition-opacity",
+    isDesktop
+      ? "grid-cols-3 gap-x-[30px] gap-y-[72px]"
+      : "grid-cols-2 gap-x-4 gap-y-6 pb-8 md:grid-cols-3 max-md:[&>li:nth-child(even)]:translate-y-8",
+    catalog.isPlaceholderData && "opacity-60"
+  )
+
+  const grid = catalog.isPending ? (
+    <ul className={gridClass} aria-hidden="true">
+      {Array.from({ length: 6 }, (_, index) => (
+        <li key={index}>
+          <NftCardSkeleton variant={isDesktop ? "grid" : "mobile"} />
+        </li>
+      ))}
+    </ul>
+  ) : catalog.isError && !result ? (
+    <QueryError message={catalog.error.message} onRetry={() => void catalog.refetch()} />
+  ) : result && result.items.length > 0 ? (
+    <ul className={gridClass} aria-busy={catalog.isFetching}>
+      {result.items.map((nft, index) => (
+        <li key={nft.id}>
+          <NftCard
+            nft={nft}
+            variant={isDesktop ? "grid" : "mobile"}
+            favorite={favorites.ids.has(nft.id)}
+            onToggleFavorite={handleFavorite}
+            onAddToCart={handleAddToCart}
+            priority={!isDesktop && index < 2}
+          />
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <EmptyCatalog onReset={onReset} />
+  )
 
   if (!isDesktop) {
     return (
       <div className="mx-auto flex max-w-[720px] flex-col gap-4 px-6 pt-10">
-        <MobileCatalogControls search={search} facets={result.facets} onChange={onSearchChange} onReset={onReset} />
+        <MobileCatalogControls search={search} facets={facets} onChange={onSearchChange} onReset={onReset} />
         <MobileHomeHero />
         <section id="catalogo" aria-labelledby="catalog-title" className="flex scroll-mt-4 flex-col gap-4">
           <h2 id="catalog-title" className="sr-only">
@@ -87,7 +107,7 @@ export function HomePage({ search, onSearchChange, onReset }: HomePageProps) {
             {resultsLabel}
           </p>
           {grid}
-          <Pagination page={result.page} pageCount={result.pageCount} className="flex justify-center pt-4" />
+          <Pagination page={result?.page ?? 1} pageCount={result?.pageCount ?? 1} className="flex justify-center pt-4" />
         </section>
         <div className="mt-12 flex flex-col gap-14">
           <PromoCards />
@@ -110,7 +130,7 @@ export function HomePage({ search, onSearchChange, onReset }: HomePageProps) {
           Catálogo de NFTs
         </h2>
         <aside aria-label="Filtros do catálogo" className="flex flex-col gap-6">
-          <CatalogFilters search={search} facets={result.facets} onChange={onSearchChange} onReset={onReset} />
+          <CatalogFilters search={search} facets={facets} onChange={onSearchChange} onReset={onReset} />
           <FeaturedBanner nftId="sage-nomad-009" nftName="Sage Nomad #009" />
         </aside>
 
@@ -137,7 +157,7 @@ export function HomePage({ search, onSearchChange, onReset }: HomePageProps) {
             ) : null}
             {grid}
           </div>
-          <Pagination page={result.page} pageCount={result.pageCount} />
+          <Pagination page={result?.page ?? 1} pageCount={result?.pageCount ?? 1} />
         </div>
       </section>
 

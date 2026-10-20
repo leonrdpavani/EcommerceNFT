@@ -9,7 +9,10 @@ import googleIcon from "@/assets/icons/google.svg"
 import { FormField, PasswordInput } from "@/components/form/form-field"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { isApiError } from "@/api/http"
+import { FormAlert } from "@/components/form/form-alert"
 import { loginSchema, signupSchema, type LoginValues, type SignupValues } from "@/features/auth/auth-schemas"
+import { useLogin, useSignup } from "@/features/session/use-session"
 import { notifyUnavailable } from "@/lib/soon"
 
 export type AuthVariant = "dialog" | "page"
@@ -25,21 +28,27 @@ const ctaStyles: Record<AuthVariant, string> = {
 }
 
 export function LoginForm({ variant, onSuccess }: { variant: AuthVariant; onSuccess: () => void }) {
+  const login = useLogin()
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginValues>({ resolver: zodResolver(loginSchema), defaultValues: { email: "", password: "" } })
 
-  const onSubmit = handleSubmit(() => {
-    // Pré-visualização: na integração, POST /session autentica e retoma o fluxo anterior.
-    toast.info("Pré-visualização: a autenticação será conectada à API simulada na próxima etapa.")
-    onSuccess()
-  })
+  const onSubmit = handleSubmit((values) =>
+    login.mutate(values, {
+      onSuccess: (session) => {
+        toast.success(`Bem-vindo(a), ${session.user.displayName}!`)
+        onSuccess()
+      },
+    })
+  )
+  const apiError = login.error && isApiError(login.error) ? login.error.message : null
 
   return (
     <form onSubmit={onSubmit} noValidate className={cn("flex flex-col", variant === "dialog" ? "gap-6" : "gap-10")}>
       <div className="flex flex-col gap-3">
+        <FormAlert message={apiError} />
         <FormField srLabel="E-mail" error={errors.email?.message}>
           <Input type="email" autoComplete="email" placeholder="contato@email.com" className={inputStyles[variant]} {...register("email")} />
         </FormField>
@@ -56,33 +65,51 @@ export function LoginForm({ variant, onSuccess }: { variant: AuthVariant; onSucc
           </button>
         </div>
       </div>
-      <Button type="submit" className={cn("font-bold", ctaStyles[variant])} aria-busy={isSubmitting}>
-        Entrar
+      <Button type="submit" className={cn("font-bold", ctaStyles[variant])} disabled={login.isPending} aria-busy={login.isPending}>
+        {login.isPending ? "Entrando…" : "Entrar"}
       </Button>
     </form>
   )
 }
 
 export function SignupForm({ variant, onSuccess }: { variant: AuthVariant; onSuccess: () => void }) {
+  const signup = useSignup()
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    setError,
+    formState: { errors },
   } = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: { username: "", email: "", password: "", confirmPassword: "" },
     mode: "onTouched",
   })
 
-  const onSubmit = handleSubmit(() => {
-    // Pré-visualização: na integração, POST /accounts cria a conta e trata conflito (409).
-    toast.info("Pré-visualização: o cadastro será conectado à API simulada na próxima etapa.")
-    onSuccess()
-  })
+  const onSubmit = handleSubmit(({ username, email, password }) =>
+    signup.mutate(
+      { username, email, password },
+      {
+        onSuccess: () => {
+          toast.success("Conta criada com sucesso!")
+          onSuccess()
+        },
+        onError: (error) => {
+          // Conflito (409) ou validação (422): mostra o erro junto do campo correspondente.
+          if (isApiError(error) && error.fields) {
+            for (const [field, message] of Object.entries(error.fields)) {
+              if (field === "username" || field === "email" || field === "password") setError(field, { message })
+            }
+          }
+        },
+      }
+    )
+  )
+  const apiError = signup.error && isApiError(signup.error) && !signup.error.fields ? signup.error.message : null
 
   return (
     <form onSubmit={onSubmit} noValidate className={cn("flex flex-col", variant === "dialog" ? "gap-6" : "gap-10")}>
       <div className="flex flex-col gap-3">
+        <FormAlert message={apiError} />
         <FormField srLabel="Nome de usuário" error={errors.username?.message}>
           <Input autoComplete="username" placeholder="Nome de usuário" className={inputStyles[variant]} {...register("username")} />
         </FormField>
@@ -96,8 +123,8 @@ export function SignupForm({ variant, onSuccess }: { variant: AuthVariant; onSuc
           <PasswordInput autoComplete="new-password" placeholder="Confirmar senha" className={inputStyles[variant]} {...register("confirmPassword")} />
         </FormField>
       </div>
-      <Button type="submit" className={cn("font-bold", ctaStyles[variant])} aria-busy={isSubmitting}>
-        {variant === "dialog" ? "Criar conta" : "Criar perfil"}
+      <Button type="submit" className={cn("font-bold", ctaStyles[variant])} disabled={signup.isPending} aria-busy={signup.isPending}>
+        {signup.isPending ? "Criando…" : variant === "dialog" ? "Criar conta" : "Criar perfil"}
       </Button>
     </form>
   )

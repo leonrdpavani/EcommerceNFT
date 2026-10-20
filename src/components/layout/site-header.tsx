@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router"
-import { LogInIcon, SearchIcon, ShoppingCartIcon } from "lucide-react"
+import { LogInIcon, SearchIcon, ShoppingCartIcon, UserIcon } from "lucide-react"
 import { useState } from "react"
 import { cn } from "cn"
 
 import { Logo } from "@/components/layout/logo"
 import { SearchDialog } from "@/components/layout/search-dialog"
+import { useSession } from "@/features/session/use-session"
 import { notifyUnavailable } from "@/lib/soon"
 
 const MARKET_PATHS = ["/nft", "/carrinho", "/pagamento", "/pedido"]
@@ -18,6 +19,7 @@ interface SiteHeaderProps {
 export function SiteHeader({ cartCount, divider = false }: SiteHeaderProps) {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const [searchOpen, setSearchOpen] = useState(false)
+  const { user } = useSession()
   const active = MARKET_PATHS.some((path) => pathname.startsWith(path)) ? "market" : "home"
 
   return (
@@ -78,13 +80,29 @@ export function SiteHeader({ cartCount, divider = false }: SiteHeaderProps) {
             ) : null}
           </Link>
 
-          <Link
-            to="/entrar"
-            className="flex h-[35px] w-[100px] items-center justify-center gap-1 rounded-md bg-brand text-base font-medium text-ink transition-colors hover:bg-brand-text"
-          >
-            <LogInIcon className="size-5" aria-hidden="true" />
-            Entrar
-          </Link>
+          {user ? (
+            <Link
+              to="/conta/perfil"
+              className="flex h-[35px] max-w-[180px] items-center gap-2 rounded-md border border-brand px-2.5 text-sm font-medium text-brand-text transition-colors hover:bg-brand/10"
+              aria-label={`Minha conta (${user.displayName})`}
+            >
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt="" className="size-6 rounded-full object-cover" />
+              ) : (
+                <UserIcon className="size-5" aria-hidden="true" />
+              )}
+              <span className="truncate">{user.displayName}</span>
+            </Link>
+          ) : (
+            <Link
+              to="/entrar"
+              search={{ redirect: pathname === "/" ? undefined : pathname }}
+              className="flex h-[35px] w-[100px] items-center justify-center gap-1 rounded-md bg-brand text-base font-medium text-ink transition-colors hover:bg-brand-text"
+            >
+              <LogInIcon className="size-5" aria-hidden="true" />
+              Entrar
+            </Link>
+          )}
         </div>
       </div>
       <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />

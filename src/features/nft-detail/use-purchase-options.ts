@@ -1,35 +1,30 @@
 import { useState } from "react"
 
+import { defaultEdition } from "@/lib/editions"
 import type { Nft } from "@/types/domain"
 
-/** Estado local de compra no detalhe: edição selecionada, quantidade limitada à disponibilidade e favorito. */
-export function usePurchaseOptions(nft: Nft) {
-  const firstAvailable =
-    nft.editions.find((edition) => edition.id === "1-50" && edition.available > 0) ??
-    nft.editions.find((edition) => edition.available > 0)
+export const MAX_PER_ORDER = 10
 
+/** Estado local de compra no detalhe: edição selecionada e quantidade limitada à disponibilidade. */
+export function usePurchaseOptions(nft: Nft, favorite: { favorite: boolean; onToggleFavorite: () => void }) {
+  const firstAvailable = defaultEdition(nft)
   const [editionId, setEditionId] = useState(firstAvailable?.id ?? nft.editions[0].id)
   const [quantity, setQuantity] = useState(1)
-  const [favorite, setFavorite] = useState(false)
 
   const edition = nft.editions.find((item) => item.id === editionId) ?? nft.editions[0]
-  const maxQuantity = Math.max(1, Math.min(edition.available, 10))
-  const soldOut = edition.available === 0
+  const maxQuantity = Math.max(1, Math.min(edition.available, MAX_PER_ORDER))
 
   return {
     edition,
     editionId,
-    selectEdition(id: string) {
-      setEditionId(id)
-      const next = nft.editions.find((item) => item.id === id)
-      if (next) setQuantity((current) => Math.min(current, Math.max(1, Math.min(next.available, 10))))
-    },
-    quantity,
+    selectEdition: setEditionId,
+    // A quantidade nunca passa da disponibilidade atual (inclusive após atualizações em tempo real).
+    quantity: Math.min(quantity, maxQuantity),
     setQuantity,
     maxQuantity,
-    soldOut,
+    soldOut: edition.available === 0,
     allSoldOut: !firstAvailable,
-    favorite,
-    toggleFavorite: () => setFavorite((value) => !value),
+    favorite: favorite.favorite,
+    toggleFavorite: favorite.onToggleFavorite,
   }
 }

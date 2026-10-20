@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { HeartIcon, ShoppingCartIcon } from "lucide-react"
 import { useState } from "react"
-import { toast } from "sonner"
 import { cn } from "cn"
 
 import shareLinkedin from "@/assets/icons/share-linkedin.svg"
@@ -20,7 +20,9 @@ import { usePurchaseOptions } from "@/features/nft-detail/use-purchase-options"
 import { useIsDesktop } from "@/hooks/use-media-query"
 import { usePageTitle } from "@/hooks/use-page-title"
 import { formatEth, multiplyEth } from "@/lib/format"
-import { relatedNfts } from "@/preview"
+import { relatedQuery } from "@/api/queries"
+import { useAddToCartAction } from "@/features/cart/use-add-to-cart-action"
+import { useFavorites, useToggleFavorite } from "@/features/favorites/use-favorites"
 import type { Nft } from "@/types/domain"
 
 type PurchaseOptions = ReturnType<typeof usePurchaseOptions>
@@ -28,26 +30,46 @@ type PurchaseOptions = ReturnType<typeof usePurchaseOptions>
 export function NftDetailPage({ nft }: { nft: Nft }) {
   usePageTitle(nft.name)
   const isDesktop = useIsDesktop()
-  const options = usePurchaseOptions(nft)
+  const favorites = useFavorites()
+  const toggleFavorite = useToggleFavorite()
+  const options = usePurchaseOptions(nft, {
+    favorite: favorites.ids.has(nft.id),
+    onToggleFavorite: () => toggleFavorite.toggle(nft.id, nft.name, favorites.ids.has(nft.id)),
+  })
   const navigate = useNavigate()
+  const cartAction = useAddToCartAction()
+  const related = useQuery(relatedQuery(nft.id))
 
-  function buyNow() {
-    // Pré-visualização: na integração, a mutation adiciona a linha ao carrinho antes de navegar.
-    void navigate({ to: "/carrinho" })
+  function addToCart(goToCart = false) {
+    cartAction.add(
+      { nftId: nft.id, editionId: options.edition.id, quantity: options.quantity, name: nft.name, editionLabel: options.edition.label },
+      { onSuccess: goToCart ? () => void navigate({ to: "/carrinho" }) : undefined }
+    )
   }
 
-  function addToCart() {
-    toast.info(`Pré-visualização: ${nft.name} ainda não é enviado ao carrinho nesta etapa.`)
-  }
+  const buyNow = () => addToCart(true)
+  const relatedItems = related.data?.items ?? []
 
   return isDesktop ? (
-    <DesktopDetail nft={nft} options={options} onBuy={buyNow} />
+    <DesktopDetail nft={nft} options={options} onBuy={buyNow} busy={cartAction.isPending} related={relatedItems} />
   ) : (
-    <MobileDetail nft={nft} options={options} onBuy={buyNow} onAddToCart={addToCart} />
+    <MobileDetail nft={nft} options={options} onBuy={buyNow} onAddToCart={() => addToCart()} busy={cartAction.isPending} />
   )
 }
 
-function DesktopDetail({ nft, options, onBuy }: { nft: Nft; options: PurchaseOptions; onBuy: () => void }) {
+function DesktopDetail({
+  nft,
+  options,
+  onBuy,
+  busy,
+  related,
+}: {
+  nft: Nft
+  options: PurchaseOptions
+  onBuy: () => void
+  busy: boolean
+  related: Nft[]
+}) {
   return (
     <div className="container-page mt-8">
       <Breadcrumb
@@ -90,7 +112,7 @@ function DesktopDetail({ nft, options, onBuy }: { nft: Nft; options: PurchaseOpt
               itemName={nft.name}
             />
             <div className="flex gap-2">
-              <Button className="w-[130px] font-bold" disabled={options.soldOut} onClick={onBuy}>
+              <Button className="w-[130px] font-bold" disabled={options.soldOut || busy} aria-busy={busy} onClick={onBuy}>
                 COMPRAR
               </Button>
               <Button
@@ -116,7 +138,7 @@ function DesktopDetail({ nft, options, onBuy }: { nft: Nft; options: PurchaseOpt
         <DetailTabs nft={nft} />
       </div>
 
-      <NftCarousel title="Mais desta coleção" nfts={relatedNfts(nft.id)} className="mt-24" />
+      {related.length > 0 ? <NftCarousel title="Mais desta coleção" nfts={related} className="mt-24" /> : null}
     </div>
   )
 }
@@ -126,11 +148,13 @@ function MobileDetail({
   options,
   onBuy,
   onAddToCart,
+  busy,
 }: {
   nft: Nft
   options: PurchaseOptions
   onBuy: () => void
   onAddToCart: () => void
+  busy: boolean
 }) {
   const [view, setView] = useState<GalleryViewId>("completa")
   const current = GALLERY_VIEWS.find((item) => item.id === view)!
@@ -217,13 +241,13 @@ function MobileDetail({
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="cta" size="xl" className="flex-1 sm:max-w-[196px]" disabled={options.soldOut} onClick={onBuy}>
+            <Button variant="cta" size="xl" className="flex-1 sm:max-w-[196px]" disabled={options.soldOut || busy} aria-busy={busy} onClick={onBuy}>
               Comprar NFT
             </Button>
             <button
               type="button"
               onClick={onAddToCart}
-              disabled={options.soldOut}
+              disabled={options.soldOut || busy}
               aria-label="Adicionar ao carrinho"
               className="flex size-[60px] shrink-0 cursor-pointer items-center justify-center rounded-full border border-line bg-surface-raised text-amber transition-colors hover:border-brand disabled:cursor-not-allowed disabled:opacity-50"
             >
