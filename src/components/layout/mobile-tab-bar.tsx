@@ -70,7 +70,7 @@ function TabItem({
       <Link
         to={to}
         aria-current={active ? "page" : undefined}
-        aria-label={badge ? `${label}, ${badge} itens` : label}
+        aria-label={badge ? `${label}, ${badge} ${badge === 1 ? "item" : "itens"}` : label}
         className={cn(
           "relative flex size-11 items-center justify-center rounded-full transition-colors [&_svg]:fill-current",
           active ? "text-brand" : "text-sand hover:text-brand-text"

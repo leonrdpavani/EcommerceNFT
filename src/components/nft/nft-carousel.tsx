@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react"
 import { cn } from "cn"
 
 import { NftCard } from "@/components/nft/nft-card"
+import { useNftCardActions } from "@/components/nft/use-nft-card-actions"
 import { SectionHeading } from "@/components/layout/page-parts"
+import { useSnapPager } from "@/hooks/use-snap-pager"
 import type { Nft } from "@/types/domain"
 
 interface NftCarouselProps {
@@ -13,37 +14,9 @@ interface NftCarouselProps {
 
 /** Carrossel horizontal com scroll-snap e indicadores de página (Figma: "Mais desta coleção"). */
 export function NftCarousel({ title, nfts, className }: NftCarouselProps) {
-  const trackRef = useRef<HTMLUListElement>(null)
-  const [pageCount, setPageCount] = useState(1)
-  const [page, setPage] = useState(0)
+  const { trackRef, page, pageCount, goTo } = useSnapPager<HTMLUListElement>()
+  const cardActions = useNftCardActions()
   const headingId = `carousel-${title.replace(/\s+/g, "-").toLowerCase()}`
-
-  const measure = useCallback(() => {
-    const track = trackRef.current
-    if (!track) return
-    const pages = Math.max(1, Math.ceil(track.scrollWidth / track.clientWidth - 0.05))
-    setPageCount(pages)
-    setPage(Math.min(pages - 1, Math.round(track.scrollLeft / track.clientWidth)))
-  }, [])
-
-  useEffect(() => {
-    const track = trackRef.current
-    if (!track) return
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(track)
-    track.addEventListener("scroll", measure, { passive: true })
-    return () => {
-      observer.disconnect()
-      track.removeEventListener("scroll", measure)
-    }
-  }, [measure])
-
-  function goTo(index: number) {
-    const track = trackRef.current
-    if (!track) return
-    track.scrollTo({ left: index * track.clientWidth, behavior: "smooth" })
-  }
 
   return (
     <section aria-labelledby={headingId} className={cn("flex flex-col gap-8", className)}>
@@ -54,7 +27,13 @@ export function NftCarousel({ title, nfts, className }: NftCarouselProps) {
       >
         {nfts.map((nft) => (
           <li key={nft.id} className="w-[44%] shrink-0 snap-start sm:w-[30%] lg:w-[219px]">
-            <NftCard nft={nft} variant="compact" />
+            <NftCard
+              nft={nft}
+              variant="compact"
+              favorite={cardActions.isFavorite(nft)}
+              onToggleFavorite={cardActions.toggleFavorite}
+              onAddToCart={cardActions.addToCart}
+            />
           </li>
         ))}
       </ul>

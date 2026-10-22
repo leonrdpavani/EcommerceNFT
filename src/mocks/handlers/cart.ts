@@ -3,7 +3,17 @@ import { http, HttpResponse } from "msw"
 import type { AddCartItemRequest, Cart, Quote, QuoteRequest, UpdateCartItemRequest } from "@/api/contracts"
 
 import { nextId, persist } from "../db"
-import { API, apiError, computeQuote, findEdition, MAX_PER_LINE, readJson, resolveCart, toCartDto, touchCart } from "../http-utils"
+import {
+  API,
+  apiError,
+  computeQuote,
+  findEdition,
+  MAX_PER_LINE,
+  readJson,
+  resolveCart,
+  toCartDto,
+  touchCart,
+} from "../http-utils"
 
 function isPositiveInt(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value > 0
@@ -11,13 +21,17 @@ function isPositiveInt(value: unknown): value is number {
 
 export const cartHandlers = [
   http.get(`${API}/cart`, async ({ request }) => {
-    const { db, cart } = await resolveCart(request)
+    const resolved = await resolveCart(request)
+    if (resolved instanceof Response) return resolved
+    const { db, cart } = resolved
     return HttpResponse.json<Cart>(toCartDto(db, cart))
   }),
 
   http.post(`${API}/cart/items`, async ({ request }) => {
     const body = await readJson<AddCartItemRequest>(request)
-    const { db, cart } = await resolveCart(request)
+    const resolved = await resolveCart(request)
+    if (resolved instanceof Response) return resolved
+    const { db, cart } = resolved
     if (!body.nftId || !body.editionId || !isPositiveInt(body.quantity)) {
       return apiError(422, "VALIDATION_ERROR", "Informe NFT, edição e uma quantidade inteira positiva.")
     }
@@ -43,14 +57,20 @@ export const cartHandlers = [
 
   http.patch(`${API}/cart/items/:itemId`, async ({ request, params }) => {
     const body = await readJson<UpdateCartItemRequest>(request)
-    const { db, cart } = await resolveCart(request)
+    const resolved = await resolveCart(request)
+    if (resolved instanceof Response) return resolved
+    const { db, cart } = resolved
     const item = cart.items.find((entry) => entry.id === params.itemId)
     if (!item) return apiError(404, "NOT_FOUND", "Item não encontrado no carrinho.")
     if (!isPositiveInt(body.quantity)) return apiError(422, "VALIDATION_ERROR", "A quantidade deve ser um inteiro positivo.")
     const found = findEdition(db, item.nftId, item.editionId)
     const limit = Math.min(MAX_PER_LINE, found?.edition.available ?? 0)
     if (body.quantity > limit) {
-      return apiError(409, "AVAILABILITY_CONFLICT", `Só há ${found?.edition.available ?? 0} unidade(s) disponível(is) desta edição.`)
+      return apiError(
+        409,
+        "AVAILABILITY_CONFLICT",
+        `Só há ${found?.edition.available ?? 0} unidade(s) disponível(is) desta edição.`
+      )
     }
     item.quantity = body.quantity
     touchCart(cart)
@@ -59,7 +79,9 @@ export const cartHandlers = [
   }),
 
   http.delete(`${API}/cart/items/:itemId`, async ({ request, params }) => {
-    const { db, cart } = await resolveCart(request)
+    const resolved = await resolveCart(request)
+    if (resolved instanceof Response) return resolved
+    const { db, cart } = resolved
     if (!cart.items.some((entry) => entry.id === params.itemId)) {
       return apiError(404, "NOT_FOUND", "Item não encontrado no carrinho.")
     }
@@ -71,7 +93,9 @@ export const cartHandlers = [
 
   http.post(`${API}/quotes`, async ({ request }) => {
     const body = await readJson<QuoteRequest>(request)
-    const { db, cart } = await resolveCart(request)
+    const resolved = await resolveCart(request)
+    if (resolved instanceof Response) return resolved
+    const { db, cart } = resolved
     const result = computeQuote(db, cart, body.couponCode || undefined)
     if (!result.ok) return result.response
     db.quotes[result.quote.id] = result.quote

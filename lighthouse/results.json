@@ -5,64 +5,64 @@
     "runs": [
       {
         "categories": {
-          "performance": 70,
+          "performance": 66,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5568.022799999999,
-          "cumulative-layout-shift": 0.01546222996910323,
-          "total-blocking-time": 134.49999999999977,
-          "first-contentful-paint": 3598.4415999999997,
-          "speed-index": 3623.571298537232
+          "largest-contentful-paint": 5547.8545,
+          "cumulative-layout-shift": 0.01540821965532604,
+          "total-blocking-time": 253.5,
+          "first-contentful-paint": 3630.602,
+          "speed-index": 3848.427993877826
         }
       },
       {
         "categories": {
-          "performance": 69,
+          "performance": 68,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5604.708125000003,
-          "cumulative-layout-shift": 0.01546222996910323,
-          "total-blocking-time": 128,
-          "first-contentful-paint": 3704.1109999999994,
-          "speed-index": 3925.1901521820346
+          "largest-contentful-paint": 5597.961599999999,
+          "cumulative-layout-shift": 0.01540821965532604,
+          "total-blocking-time": 171.49999999999955,
+          "first-contentful-paint": 3615.2308000000007,
+          "speed-index": 3871.3416897176594
         }
       },
       {
         "categories": {
-          "performance": 70,
+          "performance": 68,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5550.5877,
-          "cumulative-layout-shift": 0.01546222996910323,
-          "total-blocking-time": 112.5,
-          "first-contentful-paint": 3586.2644,
-          "speed-index": 3960.380891083485
+          "largest-contentful-paint": 5602.6324,
+          "cumulative-layout-shift": 0.01540821965532604,
+          "total-blocking-time": 195.49999999999932,
+          "first-contentful-paint": 3621.3162,
+          "speed-index": 3841.57171138043
         }
       }
     ],
     "lighthouseVersion": "12.6.1",
     "median": {
       "categories": {
-        "performance": 70,
+        "performance": 68,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 5568.022799999999,
-        "cumulative-layout-shift": 0.01546222996910323,
-        "total-blocking-time": 128,
-        "first-contentful-paint": 3598.4415999999997,
-        "speed-index": 3925.1901521820346
+        "largest-contentful-paint": 5597.961599999999,
+        "cumulative-layout-shift": 0.01540821965532604,
+        "total-blocking-time": 195.49999999999932,
+        "first-contentful-paint": 3621.3162,
+        "speed-index": 3848.427993877826
       }
     }
   },
@@ -78,58 +78,58 @@
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5061.849000000001,
+          "largest-contentful-paint": 5063.023999999999,
           "cumulative-layout-shift": 0.07776427703523695,
-          "total-blocking-time": 258.5,
-          "first-contentful-paint": 3635.8050000000003,
-          "speed-index": 3635.8050000000003
+          "total-blocking-time": 249,
+          "first-contentful-paint": 3634.1384999999996,
+          "speed-index": 3634.1384999999996
         }
       },
       {
         "categories": {
-          "performance": 64,
+          "performance": 66,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5097.8363500000005,
+          "largest-contentful-paint": 5110.976000000001,
           "cumulative-layout-shift": 0.07776427703523695,
-          "total-blocking-time": 335.5,
-          "first-contentful-paint": 3633.07575,
-          "speed-index": 3633.07575
+          "total-blocking-time": 267.4999999999998,
+          "first-contentful-paint": 3631.772,
+          "speed-index": 3631.772
         }
       },
       {
         "categories": {
-          "performance": 65,
+          "performance": 68,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5124.336,
+          "largest-contentful-paint": 5028.016,
           "cumulative-layout-shift": 0.07776427703523695,
-          "total-blocking-time": 311,
-          "first-contentful-paint": 3618.02,
-          "speed-index": 3618.02
+          "total-blocking-time": 228,
+          "first-contentful-paint": 3622.008999999999,
+          "speed-index": 3622.008999999999
         }
       }
     ],
     "lighthouseVersion": "12.6.1",
     "median": {
       "categories": {
-        "performance": 65,
+        "performance": 67,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 5097.8363500000005,
+        "largest-contentful-paint": 5063.023999999999,
         "cumulative-layout-shift": 0.07776427703523695,
-        "total-blocking-time": 311,
-        "first-contentful-paint": 3633.07575,
-        "speed-index": 3633.07575
+        "total-blocking-time": 249,
+        "first-contentful-paint": 3631.772,
+        "speed-index": 3631.772
       }
     }
   },
@@ -139,17 +139,17 @@
     "runs": [
       {
         "categories": {
-          "performance": 96,
+          "performance": 97,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1167.2875,
+          "largest-contentful-paint": 1179.0810000000001,
           "cumulative-layout-shift": 0.001586824395560414,
-          "total-blocking-time": 37,
-          "first-contentful-paint": 859.1725000000001,
-          "speed-index": 1073.1865374189679
+          "total-blocking-time": 12.5,
+          "first-contentful-paint": 838.1234999999999,
+          "speed-index": 927.0783124188478
         }
       },
       {
@@ -160,11 +160,11 @@
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1185.8900000000003,
+          "largest-contentful-paint": 1170.44,
           "cumulative-layout-shift": 0.001586824395560414,
-          "total-blocking-time": 26.000000000000057,
-          "first-contentful-paint": 829.9340000000002,
-          "speed-index": 1045.024991784435
+          "total-blocking-time": 16,
+          "first-contentful-paint": 820.9639999999998,
+          "speed-index": 975.1339520019154
         }
       },
       {
@@ -175,11 +175,11 @@
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1120.37,
+          "largest-contentful-paint": 1166.85775,
           "cumulative-layout-shift": 0.001586824395560414,
-          "total-blocking-time": 10.5,
-          "first-contentful-paint": 791.8219999999999,
-          "speed-index": 886.4680824123325
+          "total-blocking-time": 23,
+          "first-contentful-paint": 818.9146499999999,
+          "speed-index": 986.8113437523185
         }
       }
     ],
@@ -192,11 +192,11 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1167.2875,
+        "largest-contentful-paint": 1170.44,
         "cumulative-layout-shift": 0.001586824395560414,
-        "total-blocking-time": 26.000000000000057,
-        "first-contentful-paint": 829.9340000000002,
-        "speed-index": 1045.024991784435
+        "total-blocking-time": 16,
+        "first-contentful-paint": 820.9639999999998,
+        "speed-index": 975.1339520019154
       }
     }
   },
@@ -206,17 +206,17 @@
     "runs": [
       {
         "categories": {
-          "performance": 96,
+          "performance": 91,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1213.0359999999998,
+          "largest-contentful-paint": 1624.8999999999996,
           "cumulative-layout-shift": 0.0001340863664621948,
           "total-blocking-time": 0,
-          "first-contentful-paint": 834.52,
-          "speed-index": 929.1250704825319
+          "first-contentful-paint": 1082.4125,
+          "speed-index": 1225.8458432639618
         }
       },
       {
@@ -227,26 +227,26 @@
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1215.0255000000002,
+          "largest-contentful-paint": 1229.7384999999995,
           "cumulative-layout-shift": 0.0001340863664621948,
-          "total-blocking-time": 0,
-          "first-contentful-paint": 821.086,
-          "speed-index": 963.5672411923772
+          "total-blocking-time": 10,
+          "first-contentful-paint": 826.1324999999999,
+          "speed-index": 986.2147193955989
         }
       },
       {
         "categories": {
-          "performance": 96,
+          "performance": 97,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1201.5115000000003,
+          "largest-contentful-paint": 1175.495,
           "cumulative-layout-shift": 0.0001340863664621948,
           "total-blocking-time": 0,
-          "first-contentful-paint": 830.6175000000001,
-          "speed-index": 902.0380040611385
+          "first-contentful-paint": 829.7475,
+          "speed-index": 976.7769870149527
         }
       }
     ],
@@ -259,11 +259,11 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1213.0359999999998,
+        "largest-contentful-paint": 1229.7384999999995,
         "cumulative-layout-shift": 0.0001340863664621948,
         "total-blocking-time": 0,
-        "first-contentful-paint": 830.6175000000001,
-        "speed-index": 929.1250704825319
+        "first-contentful-paint": 829.7475,
+        "speed-index": 986.2147193955989
       }
     }
   }

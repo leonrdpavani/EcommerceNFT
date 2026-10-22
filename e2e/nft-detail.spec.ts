@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures"
+import { expect, login, test, USERS } from "./fixtures"
 
 test.describe("Detalhe do NFT", () => {
   test("acesso direto carrega o NFT pela API", async ({ page }) => {
@@ -32,5 +32,25 @@ test.describe("Detalhe do NFT", () => {
   test("rota inexistente mostra 404", async ({ page }) => {
     await page.goto("/rota/que/nao/existe")
     await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible()
+  })
+
+  test("cards do carrossel favoritam e adicionam ao carrinho sem sair da página", async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Carrossel "Mais desta coleção" existe só no desktop (Figma).')
+    await login(page, USERS.bruno)
+    await page.goto("/nft/emerald-ape-042")
+    const carousel = page.getByRole("region", { name: "Mais desta coleção" })
+    const card = carousel.getByRole("article").first()
+    await card.scrollIntoViewIfNeeded()
+    const name = (await card.getByRole("heading").textContent())!.trim()
+
+    await card.hover()
+    await card.getByRole("button", { name: `Favoritar ${name}` }).click()
+    await expect(page.getByText(`${name} adicionado aos favoritos.`)).toBeVisible()
+    await expect(page).toHaveURL(/emerald-ape-042/)
+
+    await card.hover()
+    await card.getByRole("button", { name: `Adicionar ${name} ao carrinho` }).click()
+    await expect(page.getByText(`${name} (1/50) adicionado ao carrinho.`)).toBeVisible()
+    await expect(page).toHaveURL(/emerald-ape-042/)
   })
 })

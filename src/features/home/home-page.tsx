@@ -1,14 +1,11 @@
 import { SearchXIcon } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
-import { toast } from "sonner"
 import { cn } from "cn"
 
 import { NftCard, NftCardSkeleton } from "@/components/nft/nft-card"
 import { QueryError } from "@/components/feedback/query-error"
 import { catalogQuery } from "@/api/queries"
-import { useAddToCartAction } from "@/features/cart/use-add-to-cart-action"
-import { useFavorites, useToggleFavorite } from "@/features/favorites/use-favorites"
-import { defaultEdition } from "@/lib/editions"
+import { useNftCardActions } from "@/components/nft/use-nft-card-actions"
 import { Button } from "@/components/ui/button"
 import { BlogSection } from "@/features/home/blog-section"
 import { CatalogFilters, type CatalogPatch } from "@/features/home/catalog-filters"
@@ -20,7 +17,6 @@ import { Pagination } from "@/features/home/pagination"
 import { PromoCards } from "@/features/home/promo-cards"
 import { useIsDesktop } from "@/hooks/use-media-query"
 import type { CatalogSearch } from "@/lib/catalog-search"
-import type { Nft } from "@/types/domain"
 
 const EMPTY_FACETS = { categories: {}, networks: {} }
 
@@ -33,25 +29,10 @@ interface HomePageProps {
 export function HomePage({ search, onSearchChange, onReset }: HomePageProps) {
   const isDesktop = useIsDesktop()
   const catalog = useQuery(catalogQuery(search))
-  const favorites = useFavorites()
-  const toggleFavorite = useToggleFavorite()
-  const addToCart = useAddToCartAction()
+  const cardActions = useNftCardActions()
 
   const result = catalog.data
   const facets = result?.facets ?? EMPTY_FACETS
-
-  function handleFavorite(nft: Nft) {
-    toggleFavorite.toggle(nft.id, nft.name, favorites.ids.has(nft.id))
-  }
-
-  function handleAddToCart(nft: Nft) {
-    const edition = defaultEdition(nft)
-    if (!edition) {
-      toast.error(`Todas as edições de ${nft.name} estão esgotadas.`)
-      return
-    }
-    addToCart.add({ nftId: nft.id, editionId: edition.id, quantity: 1, name: nft.name, editionLabel: edition.label })
-  }
 
   const total = result?.total ?? 0
   const resultsLabel = catalog.isPending ? "Carregando NFTs…" : `${total} ${total === 1 ? "NFT encontrado" : "NFTs encontrados"}`
@@ -81,9 +62,9 @@ export function HomePage({ search, onSearchChange, onReset }: HomePageProps) {
           <NftCard
             nft={nft}
             variant={isDesktop ? "grid" : "mobile"}
-            favorite={favorites.ids.has(nft.id)}
-            onToggleFavorite={handleFavorite}
-            onAddToCart={handleAddToCart}
+            favorite={cardActions.isFavorite(nft)}
+            onToggleFavorite={cardActions.toggleFavorite}
+            onAddToCart={cardActions.addToCart}
             priority={!isDesktop && index < 2}
           />
         </li>

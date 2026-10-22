@@ -176,9 +176,14 @@ Resumo atual (medianas; detalhes, ambiente e justificativa em [`lighthouse/RESUL
 | ------- | ------- | ----- | ---- | --- | --- |
 | desktop | início  | 97    | 100  | 100 | 100 |
 | desktop | detalhe | 96    | 100  | 100 | 100 |
-| mobile  | início  | 70    | 100  | 100 | 100 |
-| mobile  | detalhe | 65    | 100  | 100 | 100 |
+| mobile  | início  | 68    | 100  | 100 | 100 |
+| mobile  | detalhe | 67    | 100  | 100 | 100 |
 
 ## Deploy
 
-É uma SPA estática. Qualquer host serve o `dist/`, desde que todas as rotas sejam reescritas para `index.html`, para que refresh e acesso direto funcionem. Os mocks e o tempo real vão no build, então nenhuma configuração adicional é necessária.
+É uma SPA estática: build `npm run build`, saída `dist/`. Os mocks e o tempo real vão no build, sem variáveis de ambiente obrigatórias.
+
+Refresh e acesso direto a qualquer rota exigem reescrever as rotas para `index.html`. A configuração já está versionada (arquivos reais, como assets e `mockServiceWorker.js`, têm prioridade):
+
+- **Vercel:** `vercel.json`.
+- **Netlify / Cloudflare Pages:** `public/_redirects` (copiado para o `dist/`).

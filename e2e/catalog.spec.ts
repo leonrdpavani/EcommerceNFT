@@ -26,7 +26,10 @@ test.describe("Catálogo", () => {
     await page.goto("/?page=3")
     await expect(page.getByRole("link", { name: "Página 3" })).toHaveAttribute("aria-current", "page")
 
-    await page.getByRole("complementary", { name: "Filtros do catálogo" }).getByRole("button", { name: /^Arte digital/ }).click()
+    await page
+      .getByRole("complementary", { name: "Filtros do catálogo" })
+      .getByRole("button", { name: /^Arte digital/ })
+      .click()
     await expect(page).not.toHaveURL(/page=3/)
 
     await page.goBack()
@@ -45,7 +48,9 @@ test.describe("Catálogo", () => {
     const request = page.waitForRequest((req) => req.url().includes("/api/nfts?") && req.url().includes("sort=preco-asc"))
     await page.goto("/?sort=preco-asc")
     await request
-    await expect(page.getByRole("region", { name: "Catálogo de NFTs" }).getByRole("article").first().getByRole("heading")).toHaveText("Thistle Nomad #359")
+    await expect(
+      page.getByRole("region", { name: "Catálogo de NFTs" }).getByRole("article").first().getByRole("heading")
+    ).toHaveText("Thistle Nomad #359")
   })
 
   test("filtros no mobile ficam na gaveta e atualizam a URL", async ({ page, isMobile }) => {
@@ -55,5 +60,19 @@ test.describe("Catálogo", () => {
     const sheet = page.getByRole("dialog", { name: "Filtros" })
     await sheet.getByRole("button", { name: /^Fotografia/ }).click()
     await expect(page).toHaveURL(/fotografia/)
+  })
+
+  test("carrossel do topo: indicadores trocam o destaque e o Explorar abre a aba do slide", async ({ page }) => {
+    await page.goto("/")
+    const hero = page.getByRole("region", { name: "Destaques da Kurio" })
+    await expect(hero.getByRole("heading", { level: 1 })).toBeVisible()
+    const second = hero.getByRole("button", { name: "Destaque 2 de 3" })
+    await expect(hero.getByRole("button", { name: "Destaque 1 de 3" })).toHaveAttribute("aria-current", "true")
+
+    await second.click()
+    await expect(second).toHaveAttribute("aria-current", "true")
+    await hero.getByRole("link", { name: /Explorar novos/ }).click()
+    await expect(page).toHaveURL(/tab=novos/)
+    await expect(page.getByRole("button", { name: "Novos lançamentos" })).toHaveAttribute("aria-pressed", "true")
   })
 })

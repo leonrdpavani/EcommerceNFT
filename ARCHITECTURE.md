@@ -121,6 +121,7 @@ Regras do cliente (`src/realtime/connection.ts` e `apply-events.ts`):
   - limpa os dados privados;
   - vai ao login com `redirect` para a tela atual;
   - **mantém o rascunho do checkout** quando o motivo é expiração, para a retomada após o login.
+- **Token expirado nunca vira visitante:** as rotas de carrinho respondem 401 quando recebem um token expirado ou inválido, em vez de criar um carrinho de visitante vazio. O carrinho do usuário fica intacto para depois do novo login.
 - **Logout e troca de usuário:** removem do cache tudo sob `["user", …]` e `["cart", …]`, apagam rascunhos privados (`sessionStorage`) e reiniciam a conexão Socket.IO.
 - **Senhas:** só existem como hash SHA-256 com salt no banco simulado. Credenciais e fixtures são fictícias.
 - **Duração da sessão:** configurável (padrão de 24 h; o preset `sessao-curta` usa 1 min).
@@ -188,6 +189,9 @@ Regras do cliente (`src/realtime/connection.ts` e `apply-events.ts`):
   - edição esgotada desabilitada (texto, não só cor);
   - quantidade limitada ao disponível.
 - **Links fora do escopo** (Criadores, Aprenda, redes sociais etc.) mostram um aviso de “indisponível” em vez de levar a páginas vazias.
+- **Ações rápidas nos cards** (favoritar, adicionar ao carrinho e visualizar) iguais em todas as listas: catálogo, favoritos e carrosséis (`useNftCardActions`). No desktop aparecem no hover/foco; no mobile, o coração fica sempre visível. Adicionar pelo card usa a edição padrão (1/50 ou a primeira com estoque).
+- **Carrossel do topo** sem autoplay: passagem automática exigiria controle de pausa (WCAG 2.2.2) e custaria desempenho. Troca por arraste/rolagem (scroll-snap) ou pelos pontos.
+- **Movimento:** brilho periódico no NFT em destaque, só com `transform` (sem layout shift) e desligado com `prefers-reduced-motion`. A animação de entrada das páginas foi testada e removida: sem ganho perceptível de UX e com risco para as métricas.
 - **Painel de cenários** como aba discreta na borda direita, para não competir com a interface do Figma. Fica oculto nos testes e não existe com `VITE_ENABLE_MOCKS=false`.
 
 ## Desvios do Figma
@@ -201,6 +205,8 @@ Regras do cliente (`src/realtime/connection.ts` e `apply-events.ts`):
 | Recibo             | Aviso de que o link do Etherscan é simulado.                                                                                                  | A transação é fictícia.                                                                                  |
 | Painel de cenários | Aba lateral extra.                                                                                                                            | Ferramenta da simulação, fora do design do produto.                                                      |
 | Fonte e imagens    | Fonte do Figma (Roboto Mono) servida localmente via `@fontsource-variable`; artes em WebP responsivo (160–960 px) gerado das artes originais. | Assets locais, sem CDN; performance (LCP) sem perda visual perceptível.                                  |
+| Hero               | Carrossel com 3 destaques (o Figma mostra 1 slide e os pontos estáticos). Slides 2 e 3 levam às abas “Novos lançamentos” e “Em alta”.         | Pedido de produto; os pontos do Figma sugerem carrossel.                                                 |
+| NFT em destaque    | Brilho diagonal periódico sobre a arte.                                                                                                       | Reforçar o destaque.                                                                                     |
 | Alvos de toque     | Pontos do carrossel com área de 24 px (ponto visual mantido).                                                                                 | WCAG 2.2 (_target size_).                                                                                |
 
 ## Performance (Lighthouse)
@@ -209,10 +215,10 @@ Resultados completos em [`lighthouse/RESULTS.md`](lighthouse/RESULTS.md) (median
 
 | Perfil  | Página                 | Perf. | A11y | BP  | SEO | LCP    | CLS   | TBT    |
 | ------- | ---------------------- | ----- | ---- | --- | --- | ------ | ----- | ------ |
-| desktop | `/`                    | 97    | 100  | 100 | 100 | 1,17 s | 0,002 | 26 ms  |
-| desktop | `/nft/emerald-ape-042` | 96    | 100  | 100 | 100 | 1,21 s | 0     | 0 ms   |
-| mobile  | `/`                    | 70    | 100  | 100 | 100 | 5,57 s | 0,015 | 128 ms |
-| mobile  | `/nft/emerald-ape-042` | 65    | 100  | 100 | 100 | 5,10 s | 0,078 | 311 ms |
+| desktop | `/`                    | 97    | 100  | 100 | 100 | 1,17 s | 0,002 | 16 ms  |
+| desktop | `/nft/emerald-ape-042` | 96    | 100  | 100 | 100 | 1,23 s | 0     | 0 ms   |
+| mobile  | `/`                    | 68    | 100  | 100 | 100 | 5,60 s | 0,015 | 195 ms |
+| mobile  | `/nft/emerald-ape-042` | 67    | 100  | 100 | 100 | 5,06 s | 0,078 | 249 ms |
 
 Accessibility, Best Practices e SEO atingem 100 em todos os casos, e o desktop passa a meta de performance.
 
@@ -227,7 +233,8 @@ Accessibility, Best Practices e SEO atingem 100 em todos os casos, e o desktop p
 - `zod/mini` nos search params;
 - `decimal.js`, Socket.IO e o diálogo de busca fora do bundle inicial (de 124 para 93 KB gzip);
 - imagens WebP responsivas com dimensões fixas;
-- skeleton do detalhe com altura reservada (CLS de 0,28 para 0).
+- skeleton do detalhe com altura reservada (CLS de 0,28 para 0);
+- slides 2 e 3 do carrossel do topo montados só após o `load` (em tempo ocioso) ou na primeira interação: sem isso, a home mobile perdia ~5 pontos (TBT e Speed Index).
 
 **Testado e descartado:** embutir a rota inicial no bundle principal para evitar a cascata de chunks. O ganho ficou dentro da variação da medição e o bundle cresceu 23 KB.
 

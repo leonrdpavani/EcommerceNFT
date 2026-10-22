@@ -35,13 +35,17 @@ export function NftCard({
   className,
 }: NftCardProps) {
   const isMobile = variant === "mobile"
+  // Desktop: ações aparecem no hover/foco. Telas menores: só o coração, sempre visível.
+  const hasHoverActions = variant === "grid" || variant === "compact"
+  const hasHeartButton = variant === "mobile" || variant === "compact"
   const titleId = `nft-card-${variant}-${nft.id}`
 
   return (
     <article aria-labelledby={titleId} className={cn("group relative flex flex-col", isMobile ? "gap-2" : "gap-3", className)}>
+      {/* Sem `isolate`: os botões (z-10) precisam ficar acima do link esticado do título (::after). */}
       <div
         className={cn(
-          "relative isolate flex justify-center overflow-hidden",
+          "relative flex justify-center overflow-hidden",
           variant === "grid" && "bg-surface px-1 pt-6 pb-7",
           variant === "compact" && "bg-surface px-1 pt-4 pb-6",
           isMobile && "rounded-2xl bg-gradient-card px-1 pt-3 pb-5"
@@ -59,22 +63,31 @@ export function NftCard({
           )}
         />
 
-        {nft.badge === "raro" ? <RareBadge className="absolute top-4 left-0 z-10" /> : null}
+        {nft.badge === "raro" ? <RareBadge className="pointer-events-none absolute top-4 left-0 z-10" /> : null}
 
-        {isMobile && onToggleFavorite ? (
+        {hasHeartButton && onToggleFavorite ? (
           <button
             type="button"
             onClick={() => onToggleFavorite(nft)}
             aria-pressed={favorite}
             aria-label={favorite ? `Remover ${nft.name} dos favoritos` : `Favoritar ${nft.name}`}
-            className="absolute top-5 right-3 z-10 flex size-7 cursor-pointer items-center justify-center rounded-full bg-ink/80 text-brand-text ring-1 ring-brand/60 backdrop-blur-sm"
+            className={cn(
+              "absolute top-5 right-3 z-10 flex size-7 cursor-pointer items-center justify-center rounded-full bg-ink/80 text-brand-text ring-1 ring-brand/60 backdrop-blur-sm",
+              variant === "compact" && "lg:hidden"
+            )}
           >
             <HeartIcon className={cn("size-4", favorite && "fill-brand-text")} aria-hidden="true" />
           </button>
         ) : null}
 
-        {variant === "grid" ? (
-          <div className="absolute inset-x-0 bottom-9 z-10 flex justify-center gap-2.5 opacity-0 transition-opacity duration-200 group-focus-within:opacity-100 group-hover:opacity-100 max-lg:hidden">
+        {hasHoverActions ? (
+          <div
+            className={cn(
+              "pointer-events-none absolute inset-x-0 z-10",
+              variant === "grid" ? "bottom-9" : "bottom-8",
+              "flex justify-center gap-2.5 opacity-0 transition-opacity duration-200 *:pointer-events-auto group-focus-within:opacity-100 group-hover:opacity-100 max-lg:hidden"
+            )}
+          >
             {onAddToCart ? (
               <CardAction label={`Adicionar ${nft.name} ao carrinho`} onClick={() => onAddToCart(nft)}>
                 <ShoppingCartIcon aria-hidden="true" />
@@ -120,11 +133,7 @@ export function NftCard({
             {nft.name}
           </Link>
         </h3>
-        <Price
-          value={nft.price}
-          compareAt={nft.compareAtPrice}
-          className={cn(variant === "grid" ? "text-lg" : "text-base")}
-        />
+        <Price value={nft.price} compareAt={nft.compareAtPrice} className={cn(variant === "grid" ? "text-lg" : "text-base")} />
       </div>
     </article>
   )

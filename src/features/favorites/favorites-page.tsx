@@ -7,6 +7,7 @@ import { nftQuery } from "@/api/queries"
 import { QueryError } from "@/components/feedback/query-error"
 import { MobileScreenHeader } from "@/components/layout/page-parts"
 import { NftCard, NftCardSkeleton } from "@/components/nft/nft-card"
+import { useNftCardActions } from "@/components/nft/use-nft-card-actions"
 import { buttonVariants } from "@/components/ui/button"
 import { useFavorites, useToggleFavorite } from "@/features/favorites/use-favorites"
 import { useIsDesktop } from "@/hooks/use-media-query"
@@ -19,6 +20,7 @@ export function FavoritesPage() {
   const isDesktop = useIsDesktop()
   const favorites = useFavorites()
   const toggle = useToggleFavorite()
+  const cardActions = useNftCardActions()
   const ids = favorites.data?.nftIds ?? []
   const nfts = useQueries({ queries: ids.map((id) => nftQuery(id)) })
   const items = nfts.flatMap((query) => (query.data ? [query.data] : []))
@@ -29,7 +31,9 @@ export function FavoritesPage() {
   return (
     <div className={isDesktop ? "container-page mt-8" : "mx-auto flex max-w-[720px] flex-col gap-6 px-6 pt-8"}>
       {isDesktop ? (
-        <h1 className="border-b-[0.6px] border-line-soft pb-3 text-[17px] leading-4 font-bold text-brand-text">Lista de interesse</h1>
+        <h1 className="border-b-[0.6px] border-line-soft pb-3 text-[17px] leading-4 font-bold text-brand-text">
+          Lista de interesse
+        </h1>
       ) : (
         <MobileScreenHeader title="Favoritos" />
       )}
@@ -49,7 +53,13 @@ export function FavoritesPage() {
           <ul className={cn("grid gap-x-6 gap-y-10", isDesktop ? "grid-cols-4" : "grid-cols-2 gap-x-4")}>
             {items.map((nft: Nft) => (
               <li key={nft.id}>
-                <NftCard nft={nft} variant={variant} favorite onToggleFavorite={() => toggle.toggle(nft.id, nft.name, true)} />
+                <NftCard
+                  nft={nft}
+                  variant={variant}
+                  favorite
+                  onToggleFavorite={() => toggle.toggle(nft.id, nft.name, true)}
+                  onAddToCart={cardActions.addToCart}
+                />
               </li>
             ))}
           </ul>

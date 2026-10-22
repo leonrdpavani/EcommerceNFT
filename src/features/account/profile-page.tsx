@@ -123,7 +123,12 @@ function ProfileForm({ user }: { user: User }) {
         <FormField label="Senha atual" error={errors.currentPassword?.message} className={`gap-3 ${fieldWidth}`}>
           <PasswordInput autoComplete="current-password" {...register("currentPassword")} />
         </FormField>
-        <FormField label="Nova senha" error={errors.newPassword?.message} hint="Mínimo de 8 caracteres, com letras e números." className={`gap-3 ${fieldWidth}`}>
+        <FormField
+          label="Nova senha"
+          error={errors.newPassword?.message}
+          hint="Mínimo de 8 caracteres, com letras e números."
+          className={`gap-3 ${fieldWidth}`}
+        >
           <PasswordInput autoComplete="new-password" {...register("newPassword")} />
         </FormField>
         <FormField label="Confirmar nova senha" error={errors.confirmPassword?.message} className={`gap-3 ${fieldWidth}`}>
@@ -144,7 +149,11 @@ function AvatarField({ user }: { user: User }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const updateAvatar = useUpdateAvatar()
   const [localError, setError] = useState<string | null>(null)
-  const apiError = updateAvatar.error ? (isApiError(updateAvatar.error) ? updateAvatar.error.message : "Não foi possível atualizar o avatar.") : null
+  const apiError = updateAvatar.error
+    ? isApiError(updateAvatar.error)
+      ? (updateAvatar.error.fields?.avatar ?? updateAvatar.error.message)
+      : "Não foi possível atualizar o avatar."
+    : null
   const error = localError ?? apiError
 
   function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
@@ -172,7 +181,11 @@ function AvatarField({ user }: { user: User }) {
       </span>
       <div className="flex items-center gap-6">
         <div className="flex size-[50px] shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-surface-raised text-brand-text">
-          {user.avatarUrl ? <img src={user.avatarUrl} alt={`Avatar de ${user.displayName}`} className="size-full object-cover" /> : <ImageIcon className="size-6" aria-hidden="true" />}
+          {user.avatarUrl ? (
+            <img src={user.avatarUrl} alt={`Avatar de ${user.displayName}`} className="size-full object-cover" />
+          ) : (
+            <ImageIcon className="size-6" aria-hidden="true" />
+          )}
         </div>
         <div className="flex items-center gap-5">
           <input

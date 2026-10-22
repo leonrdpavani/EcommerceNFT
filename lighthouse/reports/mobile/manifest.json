@@ -2,10 +2,10 @@
   {
     "url": "/",
     "isRepresentativeRun": false,
-    "htmlPath": "inicio-2026_10_20_21_36_34.report.html",
-    "jsonPath": "inicio-2026_10_20_21_36_34.report.json",
+    "htmlPath": "inicio-2026_10_22_00_45_59.report.html",
+    "jsonPath": "inicio-2026_10_22_00_45_59.report.json",
     "summary": {
-      "performance": 0.69,
+      "performance": 0.66,
       "accessibility": 1,
       "best-practices": 1,
       "seo": 1
@@ -14,10 +14,10 @@
   {
     "url": "/",
     "isRepresentativeRun": false,
-    "htmlPath": "inicio-2026_10_20_21_36_51.report.html",
-    "jsonPath": "inicio-2026_10_20_21_36_51.report.json",
+    "htmlPath": "inicio-2026_10_22_00_46_18.report.html",
+    "jsonPath": "inicio-2026_10_22_00_46_18.report.json",
     "summary": {
-      "performance": 0.7,
+      "performance": 0.68,
       "accessibility": 1,
       "best-practices": 1,
       "seo": 1
@@ -26,46 +26,46 @@
   {
     "url": "/nft/emerald-ape-042",
     "isRepresentativeRun": false,
-    "htmlPath": "nft_emerald_ape_042-2026_10_20_21_37_34.report.html",
-    "jsonPath": "nft_emerald_ape_042-2026_10_20_21_37_34.report.json",
-    "summary": {
-      "performance": 0.64,
-      "accessibility": 1,
-      "best-practices": 1,
-      "seo": 1
-    }
-  },
-  {
-    "url": "/nft/emerald-ape-042",
-    "isRepresentativeRun": false,
-    "htmlPath": "nft_emerald_ape_042-2026_10_20_21_37_49.report.html",
-    "jsonPath": "nft_emerald_ape_042-2026_10_20_21_37_49.report.json",
-    "summary": {
-      "performance": 0.65,
-      "accessibility": 1,
-      "best-practices": 1,
-      "seo": 1
-    }
-  },
-  {
-    "url": "/",
-    "isRepresentativeRun": true,
-    "htmlPath": "inicio-2026_10_20_21_36_15.report.html",
-    "jsonPath": "inicio-2026_10_20_21_36_15.report.json",
-    "summary": {
-      "performance": 0.7,
-      "accessibility": 1,
-      "best-practices": 1,
-      "seo": 1
-    }
-  },
-  {
-    "url": "/nft/emerald-ape-042",
-    "isRepresentativeRun": true,
-    "htmlPath": "nft_emerald_ape_042-2026_10_20_21_37_19.report.html",
-    "jsonPath": "nft_emerald_ape_042-2026_10_20_21_37_19.report.json",
+    "htmlPath": "nft_emerald_ape_042-2026_10_22_00_46_53.report.html",
+    "jsonPath": "nft_emerald_ape_042-2026_10_22_00_46_53.report.json",
     "summary": {
       "performance": 0.67,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "/nft/emerald-ape-042",
+    "isRepresentativeRun": false,
+    "htmlPath": "nft_emerald_ape_042-2026_10_22_00_47_21.report.html",
+    "jsonPath": "nft_emerald_ape_042-2026_10_22_00_47_21.report.json",
+    "summary": {
+      "performance": 0.68,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "/",
+    "isRepresentativeRun": true,
+    "htmlPath": "inicio-2026_10_22_00_46_36.report.html",
+    "jsonPath": "inicio-2026_10_22_00_46_36.report.json",
+    "summary": {
+      "performance": 0.68,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "/nft/emerald-ape-042",
+    "isRepresentativeRun": true,
+    "htmlPath": "nft_emerald_ape_042-2026_10_22_00_47_07.report.html",
+    "jsonPath": "nft_emerald_ape_042-2026_10_22_00_47_07.report.json",
+    "summary": {
+      "performance": 0.66,
       "accessibility": 1,
       "best-practices": 1,
       "seo": 1

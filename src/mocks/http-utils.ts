@@ -41,7 +41,11 @@ export async function readAuth(request: Request): Promise<AuthResult> {
 export async function requireAuth(request: Request) {
   const auth = await readAuth(request)
   if (auth.user) return { db: auth.db, user: auth.user }
-  return auth.reason === "expired"
+  return unauthorized(auth.reason)
+}
+
+function unauthorized(reason: "missing" | "expired" | "invalid") {
+  return reason === "expired"
     ? apiError(401, "SESSION_EXPIRED", "Sua sessão expirou. Entre novamente para continuar.")
     : apiError(401, "UNAUTHENTICATED", "Entre na sua conta para continuar.")
 }
@@ -64,10 +68,15 @@ export function findOrCreateCart(db: Db, ownerId: string | null, visitorCartId: 
   return cart
 }
 
+/**
+ * Carrinho do usuário autenticado ou do visitante (X-Cart-Id). Um token enviado mas
+ * expirado/inválido responde 401 — nunca cai silenciosamente num carrinho de visitante.
+ */
 export async function resolveCart(request: Request) {
   const auth = await readAuth(request)
+  if (!auth.user && auth.reason !== "missing") return unauthorized(auth.reason)
   const cart = findOrCreateCart(auth.db, auth.user?.id ?? null, request.headers.get("x-cart-id"))
-  return { db: auth.db, user: auth.user, cart, authReason: auth.user ? null : auth.reason }
+  return { db: auth.db, user: auth.user, cart }
 }
 
 export function touchCart(cart: DbCart) {
@@ -128,10 +137,16 @@ export function applyCoupon(code: string | undefined, subtotal: Decimal): Coupon
   const normalized = code.trim().toUpperCase()
   const coupon = COUPON_FIXTURES[normalized]
   if (!coupon) {
-    return { ok: false, response: apiError(422, "COUPON_INVALID", `O cupom ${normalized} não existe.`, { couponCode: "Cupom inválido." }) }
+    return {
+      ok: false,
+      response: apiError(422, "COUPON_INVALID", `O cupom ${normalized} não existe.`, { couponCode: "Cupom inválido." }),
+    }
   }
   if (new Date(coupon.expiresAt).getTime() < Date.now()) {
-    return { ok: false, response: apiError(422, "COUPON_EXPIRED", `O cupom ${normalized} expirou.`, { couponCode: "Cupom expirado." }) }
+    return {
+      ok: false,
+      response: apiError(422, "COUPON_EXPIRED", `O cupom ${normalized} expirou.`, { couponCode: "Cupom expirado." }),
+    }
   }
   if (coupon.minSubtotal && subtotal.lessThan(coupon.minSubtotal)) {
     return {
@@ -147,14 +162,24 @@ export function applyCoupon(code: string | undefined, subtotal: Decimal): Coupon
 }
 
 /** Calcula a cotação do carrinho com os preços e a disponibilidade atuais. */
-export function computeQuote(db: Db, cart: DbCart, couponCode?: string): { ok: true; quote: Quote } | { ok: false; response: Response } {
+export function computeQuote(
+  db: Db,
+  cart: DbCart,
+  couponCode?: string
+): { ok: true; quote: Quote } | { ok: false; response: Response } {
   const issues: QuoteIssue[] = []
   const items: QuoteLine[] = cart.items.flatMap((item) => {
     const found = findEdition(db, item.nftId, item.editionId)
     if (!found) return []
     const { nft, edition } = found
     if (item.quantity > edition.available) {
-      issues.push({ type: "INSUFFICIENT_AVAILABILITY", nftId: nft.id, editionId: edition.id, requested: item.quantity, available: edition.available })
+      issues.push({
+        type: "INSUFFICIENT_AVAILABILITY",
+        nftId: nft.id,
+        editionId: edition.id,
+        requested: item.quantity,
+        available: edition.available,
+      })
     }
     return [
       {

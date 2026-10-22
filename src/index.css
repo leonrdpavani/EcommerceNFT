@@ -76,6 +76,8 @@
 
   /* Animações */
   --animate-shimmer: shimmer 1.6s linear infinite;
+  /* Reflexo que atravessa o NFT em destaque (só transform: animação no compositor). */
+  --animate-shine: shine 4s ease-in-out 1s infinite both;
 }
 
 :root {
@@ -116,6 +118,16 @@
   --input: var(--kurio-border);
   --ring: var(--kurio-text-accent);
   --radius: 6px;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  45%,
+  100% {
+    transform: translateX(350%) skewX(-20deg);
+  }
 }
 
 @keyframes shimmer {

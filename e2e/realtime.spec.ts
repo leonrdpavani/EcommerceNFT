@@ -1,4 +1,14 @@
-import { addToCartFromDetail, expect, login, mockAction, openReviewAndConnect, setMockConfig, test, USERS, waitForRealtime } from "./fixtures"
+import {
+  addToCartFromDetail,
+  expect,
+  login,
+  mockAction,
+  openReviewAndConnect,
+  setMockConfig,
+  test,
+  USERS,
+  waitForRealtime,
+} from "./fixtures"
 
 /**
  * Todos os eventos passam pelo cliente Socket.IO real (socket.io-client), conectado ao
@@ -25,6 +35,22 @@ test.describe("Tempo real (Socket.IO)", () => {
     await pay.click()
     await expect(page.getByRole("heading", { name: "Seus NFTs agora estão na sua carteira" })).toBeVisible()
     await expect(page.getByText("1.506 ETH").first()).toBeVisible()
+  })
+
+  test("nft.updated atualiza o preço no catálogo e no detalhe sem recarregar", async ({ page }) => {
+    await page.goto("/")
+    const card = page.getByRole("article", { name: "Golden Signal #160" })
+    await expect(card.getByText("0.39 ETH")).toBeVisible()
+    await waitForRealtime(page)
+
+    await mockAction(page, "price-change", { nftId: "golden-signal-160", delta: "1" })
+    await expect(card.getByText("1.39 ETH")).toBeVisible()
+
+    await card.getByRole("link", { name: "Golden Signal #160" }).click()
+    await expect(page.getByRole("heading", { level: 1, name: "Golden Signal #160" })).toBeVisible()
+    await expect(page.getByText("1.39 ETH").first()).toBeVisible()
+    await mockAction(page, "price-change", { nftId: "golden-signal-160", delta: "0.5" })
+    await expect(page.getByText("1.89 ETH").first()).toBeVisible()
   })
 
   test("edição esgotada com item no carrinho bloqueia o checkout", async ({ page, isMobile }) => {
