@@ -1,4 +1,6 @@
-import { expect, login, mockAction, setMockConfig, submitLogin, test, USERS, addToCartFromDetail } from "./fixtures"
+import type { Page } from "@playwright/test"
+
+import { expect, login, mockAction, setMockConfig, submitLogin, test, USERS, addToCartFromDetail, waitForMocks } from "./fixtures"
 
 test.describe("Falhas, carregamento e sessão", () => {
   test.describe("rede lenta", () => {
@@ -7,7 +9,9 @@ test.describe("Falhas, carregamento e sessão", () => {
     test("skeletons durante carregamento lento do catálogo e do detalhe", async ({ page }) => {
       await page.goto("/")
       await expect(page.locator(".animate-shimmer").first()).toBeVisible()
-      await expect(page.getByRole("region", { name: "Catálogo de NFTs" }).getByRole("article").first()).toBeVisible({ timeout: 10_000 })
+      await expect(page.getByRole("region", { name: "Catálogo de NFTs" }).getByRole("article").first()).toBeVisible({
+        timeout: 10_000,
+      })
 
       await page.goto("/nft/golden-beat-207")
       await expect(page.getByRole("status", { name: "Carregando NFT" })).toBeVisible()
@@ -28,7 +32,9 @@ test.describe("Falhas, carregamento e sessão", () => {
     await page.goto("/")
     await setMockConfig(page, { failure: "catalog-error" })
     await page.goto("/?page=2")
-    await expect(page.getByRole("alert").filter({ hasText: "O catálogo está indisponível no momento." })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole("alert").filter({ hasText: "O catálogo está indisponível no momento." })).toBeVisible({
+      timeout: 10_000,
+    })
     await setMockConfig(page, { failure: "none" })
     await page.getByRole("button", { name: "Tentar novamente" }).click()
     await expect(page.getByRole("region", { name: "Catálogo de NFTs" }).getByRole("article").first()).toBeVisible()
@@ -75,11 +81,15 @@ test.describe("Falhas, carregamento e sessão", () => {
     await page.getByRole("dialog", { name: "Revise seu pedido" }).getByRole("button", { name: "Conectar carteira" }).click()
 
     await expect(page).toHaveURL(/\/entrar\?redirect=%2Fpagamento/)
-    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "Sua sessão expirou. Entre novamente para continuar." })).toBeVisible()
+    await expect(
+      page.locator("[data-sonner-toast]").filter({ hasText: "Sua sessão expirou. Entre novamente para continuar." })
+    ).toBeVisible()
     await submitLogin(page, USERS.ana)
     await expect(page).toHaveURL(/\/pagamento/)
     if (isMobile) await page.getByText("Dados do colecionador").click()
-    await expect(page.getByLabel("Observação do colecionador (opcional)")).toHaveValue("Entregar na carteira principal, por favor.")
+    await expect(page.getByLabel("Observação do colecionador (opcional)")).toHaveValue(
+      "Entregar na carteira principal, por favor."
+    )
   })
 
   test("troca de usuário não expõe dados privados do usuário anterior", async ({ page, isMobile }) => {
@@ -98,5 +108,49 @@ test.describe("Falhas, carregamento e sessão", () => {
     await expect(page.getByRole("heading", { name: "Emerald Ape #042" })).toHaveCount(0)
     await page.goto("/conta/carteiras")
     await expect(page.getByLabel(/Endereço da carteira/).first()).toHaveValue("")
+  })
+
+  test.describe("service worker do MSW encerrado pelo navegador", () => {
+    // Aba aberta por muito tempo (ou em segundo plano): o Chrome encerra o service worker ocioso e,
+    // ao reiniciar, ele esquece a aba. Sem recuperação, /api ia para a rede e voltava o index.html.
+    async function stopServiceWorker(page: Page) {
+      const cdp = await page.context().newCDPSession(page)
+      await cdp.send("ServiceWorker.enable")
+      await cdp.send("ServiceWorker.stopAllWorkers")
+      await cdp.detach()
+    }
+
+    test("navegação continua funcionando depois que o worker reinicia", async ({ page, browserName }) => {
+      test.skip(browserName !== "chromium", "Controle do service worker via CDP.")
+      await page.goto("/")
+      await waitForMocks(page)
+      const catalog = page.getByRole("region", { name: "Catálogo de NFTs" })
+      await expect(catalog.getByRole("article").first()).toBeVisible()
+
+      await stopServiceWorker(page)
+      await catalog.getByRole("link", { name: "Sage Nomad #009" }).first().click()
+      await expect(page.getByRole("heading", { level: 1, name: "Sage Nomad #009" })).toBeVisible()
+      await expect(page.getByText("Something went wrong!")).toHaveCount(0)
+    })
+
+    test("aba volta a ficar visível: os mocks são reativados antes da próxima requisição", async ({ page, browserName }) => {
+      test.skip(browserName !== "chromium", "Controle do service worker via CDP.")
+      const fromNetwork: string[] = []
+      page.on("response", (response) => {
+        if (new URL(response.url()).pathname.startsWith("/api/") && !response.fromServiceWorker())
+          fromNetwork.push(response.url())
+      })
+      await page.goto("/")
+      await waitForMocks(page)
+      await expect(page.getByRole("region", { name: "Catálogo de NFTs" }).getByRole("article").first()).toBeVisible()
+
+      await stopServiceWorker(page)
+      // Simula a volta para a aba (visibilitychange).
+      await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")))
+      await page.waitForTimeout(300)
+      await page.getByRole("region", { name: "Catálogo de NFTs" }).getByRole("link", { name: "Golden Beat #207" }).first().click()
+      await expect(page.getByRole("heading", { level: 1, name: "Golden Beat #207" })).toBeVisible()
+      expect(fromNetwork).toEqual([])
+    })
   })
 })

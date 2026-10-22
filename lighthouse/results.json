@@ -5,17 +5,17 @@
     "runs": [
       {
         "categories": {
-          "performance": 66,
+          "performance": 63,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5547.8545,
+          "largest-contentful-paint": 5686.636,
           "cumulative-layout-shift": 0.01540821965532604,
-          "total-blocking-time": 253.5,
-          "first-contentful-paint": 3630.602,
-          "speed-index": 3848.427993877826
+          "total-blocking-time": 317.0000000000002,
+          "first-contentful-paint": 3669.9827500000006,
+          "speed-index": 4374.268587938168
         }
       },
       {
@@ -26,26 +26,26 @@
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5597.961599999999,
+          "largest-contentful-paint": 5520.793,
           "cumulative-layout-shift": 0.01540821965532604,
-          "total-blocking-time": 171.49999999999955,
-          "first-contentful-paint": 3615.2308000000007,
-          "speed-index": 3871.3416897176594
+          "total-blocking-time": 169,
+          "first-contentful-paint": 3738.3965,
+          "speed-index": 3981.60237850892
         }
       },
       {
         "categories": {
-          "performance": 68,
+          "performance": 69,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5602.6324,
+          "largest-contentful-paint": 5498.83675,
           "cumulative-layout-shift": 0.01540821965532604,
-          "total-blocking-time": 195.49999999999932,
-          "first-contentful-paint": 3621.3162,
-          "speed-index": 3841.57171138043
+          "total-blocking-time": 174.5,
+          "first-contentful-paint": 3606.85475,
+          "speed-index": 3847.186817272094
         }
       }
     ],
@@ -58,11 +58,11 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 5597.961599999999,
+        "largest-contentful-paint": 5520.793,
         "cumulative-layout-shift": 0.01540821965532604,
-        "total-blocking-time": 195.49999999999932,
-        "first-contentful-paint": 3621.3162,
-        "speed-index": 3848.427993877826
+        "total-blocking-time": 174.5,
+        "first-contentful-paint": 3669.9827500000006,
+        "speed-index": 3981.60237850892
       }
     }
   },
@@ -72,32 +72,32 @@
     "runs": [
       {
         "categories": {
-          "performance": 67,
-          "accessibility": 100,
-          "best-practices": 100,
-          "seo": 100
-        },
-        "metrics": {
-          "largest-contentful-paint": 5063.023999999999,
-          "cumulative-layout-shift": 0.07776427703523695,
-          "total-blocking-time": 249,
-          "first-contentful-paint": 3634.1384999999996,
-          "speed-index": 3634.1384999999996
-        }
-      },
-      {
-        "categories": {
           "performance": 66,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5110.976000000001,
+          "largest-contentful-paint": 5114.516999999999,
           "cumulative-layout-shift": 0.07776427703523695,
-          "total-blocking-time": 267.4999999999998,
-          "first-contentful-paint": 3631.772,
-          "speed-index": 3631.772
+          "total-blocking-time": 289.4999999999998,
+          "first-contentful-paint": 3637.2585,
+          "speed-index": 3637.2585
+        }
+      },
+      {
+        "categories": {
+          "performance": 69,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 5128.946999999998,
+          "cumulative-layout-shift": 0.07776427703523695,
+          "total-blocking-time": 167.5585000000001,
+          "first-contentful-paint": 3727.973499999999,
+          "speed-index": 3727.973499999999
         }
       },
       {
@@ -108,28 +108,28 @@
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 5028.016,
+          "largest-contentful-paint": 5077.226999999999,
           "cumulative-layout-shift": 0.07776427703523695,
-          "total-blocking-time": 228,
-          "first-contentful-paint": 3622.008999999999,
-          "speed-index": 3622.008999999999
+          "total-blocking-time": 229.09850000000006,
+          "first-contentful-paint": 3604.1134999999995,
+          "speed-index": 3604.1134999999995
         }
       }
     ],
     "lighthouseVersion": "12.6.1",
     "median": {
       "categories": {
-        "performance": 67,
+        "performance": 68,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 5063.023999999999,
+        "largest-contentful-paint": 5114.516999999999,
         "cumulative-layout-shift": 0.07776427703523695,
-        "total-blocking-time": 249,
-        "first-contentful-paint": 3631.772,
-        "speed-index": 3631.772
+        "total-blocking-time": 229.09850000000006,
+        "first-contentful-paint": 3637.2585,
+        "speed-index": 3637.2585
       }
     }
   },
@@ -145,11 +145,26 @@
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1179.0810000000001,
+          "largest-contentful-paint": 1171.181,
           "cumulative-layout-shift": 0.001586824395560414,
-          "total-blocking-time": 12.5,
-          "first-contentful-paint": 838.1234999999999,
-          "speed-index": 927.0783124188478
+          "total-blocking-time": 7.499999999999943,
+          "first-contentful-paint": 834.954,
+          "speed-index": 915.8324035003211
+        }
+      },
+      {
+        "categories": {
+          "performance": 96,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 1185.9397500000002,
+          "cumulative-layout-shift": 0.001586824395560414,
+          "total-blocking-time": 16.500000000000114,
+          "first-contentful-paint": 874.8860000000001,
+          "speed-index": 1036.687419331732
         }
       },
       {
@@ -160,26 +175,11 @@
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1170.44,
+          "largest-contentful-paint": 1153.84825,
           "cumulative-layout-shift": 0.001586824395560414,
-          "total-blocking-time": 16,
-          "first-contentful-paint": 820.9639999999998,
-          "speed-index": 975.1339520019154
-        }
-      },
-      {
-        "categories": {
-          "performance": 97,
-          "accessibility": 100,
-          "best-practices": 100,
-          "seo": 100
-        },
-        "metrics": {
-          "largest-contentful-paint": 1166.85775,
-          "cumulative-layout-shift": 0.001586824395560414,
-          "total-blocking-time": 23,
-          "first-contentful-paint": 818.9146499999999,
-          "speed-index": 986.8113437523185
+          "total-blocking-time": 15.5,
+          "first-contentful-paint": 812.0219999999999,
+          "speed-index": 944.1020494980239
         }
       }
     ],
@@ -192,11 +192,11 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1170.44,
+        "largest-contentful-paint": 1171.181,
         "cumulative-layout-shift": 0.001586824395560414,
-        "total-blocking-time": 16,
-        "first-contentful-paint": 820.9639999999998,
-        "speed-index": 975.1339520019154
+        "total-blocking-time": 15.5,
+        "first-contentful-paint": 834.954,
+        "speed-index": 944.1020494980239
       }
     }
   },
@@ -206,17 +206,17 @@
     "runs": [
       {
         "categories": {
-          "performance": 91,
+          "performance": 97,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1624.8999999999996,
+          "largest-contentful-paint": 1173.1347999999998,
           "cumulative-layout-shift": 0.0001340863664621948,
           "total-blocking-time": 0,
-          "first-contentful-paint": 1082.4125,
-          "speed-index": 1225.8458432639618
+          "first-contentful-paint": 813.2320749999999,
+          "speed-index": 935.4128874879586
         }
       },
       {
@@ -227,26 +227,26 @@
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1229.7384999999995,
+          "largest-contentful-paint": 1211.5559999999996,
           "cumulative-layout-shift": 0.0001340863664621948,
-          "total-blocking-time": 10,
-          "first-contentful-paint": 826.1324999999999,
-          "speed-index": 986.2147193955989
+          "total-blocking-time": 0,
+          "first-contentful-paint": 842.9689999999998,
+          "speed-index": 973.482414503002
         }
       },
       {
         "categories": {
-          "performance": 97,
+          "performance": 96,
           "accessibility": 100,
           "best-practices": 100,
           "seo": 100
         },
         "metrics": {
-          "largest-contentful-paint": 1175.495,
+          "largest-contentful-paint": 1211.2720000000002,
           "cumulative-layout-shift": 0.0001340863664621948,
-          "total-blocking-time": 0,
-          "first-contentful-paint": 829.7475,
-          "speed-index": 976.7769870149527
+          "total-blocking-time": 1,
+          "first-contentful-paint": 840.0905,
+          "speed-index": 999.7238129263326
         }
       }
     ],
@@ -259,11 +259,11 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1229.7384999999995,
+        "largest-contentful-paint": 1211.2720000000002,
         "cumulative-layout-shift": 0.0001340863664621948,
         "total-blocking-time": 0,
-        "first-contentful-paint": 829.7475,
-        "speed-index": 986.2147193955989
+        "first-contentful-paint": 840.0905,
+        "speed-index": 973.482414503002
       }
     }
   }

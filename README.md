@@ -177,7 +177,7 @@ Resumo atual (medianas; detalhes, ambiente e justificativa em [`lighthouse/RESUL
 | desktop | início  | 97    | 100  | 100 | 100 |
 | desktop | detalhe | 96    | 100  | 100 | 100 |
 | mobile  | início  | 68    | 100  | 100 | 100 |
-| mobile  | detalhe | 67    | 100  | 100 | 100 |
+| mobile  | detalhe | 68    | 100  | 100 | 100 |
 
 ## Deploy
 

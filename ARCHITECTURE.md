@@ -216,9 +216,9 @@ Resultados completos em [`lighthouse/RESULTS.md`](lighthouse/RESULTS.md) (median
 | Perfil  | Página                 | Perf. | A11y | BP  | SEO | LCP    | CLS   | TBT    |
 | ------- | ---------------------- | ----- | ---- | --- | --- | ------ | ----- | ------ |
 | desktop | `/`                    | 97    | 100  | 100 | 100 | 1,17 s | 0,002 | 16 ms  |
-| desktop | `/nft/emerald-ape-042` | 96    | 100  | 100 | 100 | 1,23 s | 0     | 0 ms   |
-| mobile  | `/`                    | 68    | 100  | 100 | 100 | 5,60 s | 0,015 | 195 ms |
-| mobile  | `/nft/emerald-ape-042` | 67    | 100  | 100 | 100 | 5,06 s | 0,078 | 249 ms |
+| desktop | `/nft/emerald-ape-042` | 96    | 100  | 100 | 100 | 1,21 s | 0     | 0 ms   |
+| mobile  | `/`                    | 68    | 100  | 100 | 100 | 5,52 s | 0,015 | 175 ms |
+| mobile  | `/nft/emerald-ape-042` | 68    | 100  | 100 | 100 | 5,11 s | 0,078 | 229 ms |
 
 Accessibility, Best Practices e SEO atingem 100 em todos os casos, e o desktop passa a meta de performance.
 
@@ -255,6 +255,13 @@ Sobre a medição: o `scripts/lighthouse.mjs` sobe e encerra o próprio servidor
   - ao reabrir, pedidos pendentes vencidos são concluídos;
   - sessões de carteira ficam em memória e somem no refresh, como uma extensão real.
 - **Service Worker** exige contexto seguro (HTTPS ou `localhost`).
+- **Service worker reiniciado pelo navegador:** o Chrome encerra service workers ociosos (ex.: aba muito tempo em segundo plano). Ao reiniciar, o worker do MSW esquece as abas ativas (a lista fica só em memória) e deixaria `/api` ir para a rede. Defesa em camadas:
+  - ao voltar para a aba, o app reenvia `MOCK_ACTIVATE` (idempotente) e as requisições aguardam a confirmação;
+  - se mesmo assim uma resposta de `/api` não for JSON, o Axios re-registra a aba e repete a requisição uma vez (ela não chegou à API, então é seguro); se falhar, vira erro transitório com “Tentar novamente”;
+  - erros inesperados de renderização mostram uma tela amigável com nova tentativa.
+
+  Coberto por testes E2E que encerram o service worker via DevTools Protocol.
+
 - **Transações e links do Etherscan** são fictícios.
 - **Baselines visuais** geradas no Windows; outro sistema operacional pode exigir regenerá-las.
 - **Peers:** `msw` fixado na v2 (o binding não suporta a v3); `@hookform/resolvers` instalado com `--legacy-peer-deps`.

@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client"
 
 import "./index.css"
 import { setMocksGate } from "./api/mocks-gate"
+import { RouteError } from "./components/feedback/route-error"
 import { createQueryClient } from "./api/query-client"
 import { routeTree } from "./routeTree.gen"
 
@@ -17,6 +18,8 @@ const router = createRouter({
   defaultPreload: "intent",
   // O TanStack Query controla o cache; o router sempre consulta o loader.
   defaultPreloadStaleTime: 0,
+  // Erro inesperado de renderização: mensagem amigável com nova tentativa (não a tela técnica).
+  defaultErrorComponent: RouteError,
 })
 
 declare module "@tanstack/react-router" {

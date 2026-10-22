@@ -1,8 +1,8 @@
-import axios, { AxiosError } from "axios"
+import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from "axios"
 
 import type { ApiErrorBody, ApiErrorCode } from "@/api/contracts"
 import { clientStorage } from "@/api/client-storage"
-import { whenMocksReady } from "@/api/mocks-gate"
+import { recoverMocks, whenMocksReady } from "@/api/mocks-gate"
 
 /** Erro normalizado da API — toda falha de transporte vira um ApiError com código estável. */
 export class ApiError extends Error {
@@ -60,9 +60,37 @@ export function onSessionRejected(listener: SessionListener) {
   }
 }
 
+/**
+ * A API sempre responde JSON (ou 204 sem corpo). Qualquer outra coisa significa que a requisição
+ * não chegou à API — ex.: o service worker do MSW foi reiniciado pelo navegador e a requisição
+ * caiu no rewrite da SPA, que devolve o index.html.
+ */
+function isForeignResponse(response: AxiosResponse) {
+  if (response.status === 204) return false
+  return !String(response.headers["content-type"] ?? "").includes("json")
+}
+
+declare module "axios" {
+  interface AxiosRequestConfig {
+    /** Já repetida após recuperar os mocks (evita laço). */
+    recoveryRetried?: boolean
+  }
+}
+
+/** Devolve a rede aos mocks e repete a requisição uma única vez (ela não chegou à API: é seguro). */
+async function retryAfterRecovery(config: InternalAxiosRequestConfig) {
+  if (!config.recoveryRetried && (await recoverMocks())) {
+    return http.request({ ...config, recoveryRetried: true })
+  }
+  throw new ApiError(503, "TRANSIENT", "O serviço está indisponível no momento. Tente novamente.")
+}
+
 http.interceptors.response.use(
-  (response) => response,
+  (response) => (isForeignResponse(response) ? retryAfterRecovery(response.config) : response),
   (error: unknown) => {
+    if (error instanceof AxiosError && error.response && error.config && isForeignResponse(error.response)) {
+      return retryAfterRecovery(error.config)
+    }
     if (axios.isCancel(error)) return Promise.reject(new ApiError(0, "CANCELED", "Requisição cancelada."))
     if (!(error instanceof AxiosError)) return Promise.reject(error)
 
